@@ -32,3 +32,26 @@
 | `git commit -m "mensaje"` | Guarda los cambios con un mensaje descriptivo |
 | `git push`                | Sube los cambios a GitHub                     |
 | `git status`              | Muestra qué archivos cambiaron                |
+
+## Docker
+
+| Comando                                                                                                                                            | Descripción                                                 |
+| -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `docker run --name whatsapp-zoho-db -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -e POSTGRES_DB=whatsapp_zoho -p 5432:5432 -d postgres:15` | Crea y levanta el contenedor PostgreSQL por primera vez     |
+| `docker ps`                                                                                                                                        | Lista los contenedores corriendo                            |
+| `docker start whatsapp-zoho-db`                                                                                                                    | Levanta el contenedor si ya existe (después del primer run) |
+| `docker stop whatsapp-zoho-db`                                                                                                                     | Detiene el contenedor                                       |
+
+## PostgreSQL (dentro de Docker)
+
+| Comando                                                                                             | Descripción                     |
+| --------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `docker exec -it whatsapp-zoho-db psql -U admin -d whatsapp_zoho -c "\dt"`                          | Lista las tablas de la DB       |
+| `docker exec -it whatsapp-zoho-db psql -U admin -d whatsapp_zoho -c "SELECT * FROM conversations;"` | Ver registros de conversaciones |
+| `docker exec -it whatsapp-zoho-db psql -U admin -d whatsapp_zoho -c "SELECT * FROM messages;"`      | Ver registros de mensajes       |
+
+## ngrok
+
+| Comando           | Descripción                                        |
+| ----------------- | -------------------------------------------------- |
+| `ngrok http 8000` | Expone el puerto 8000 públicamente para el webhook |
