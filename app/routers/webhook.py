@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Query, Request, Depends
+from fastapi import APIRouter, Query, Depends
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
+from app.schemas import WhatsAppWebhookPayload
 from app.services.whatsapp import process_incoming_message
 
 router = APIRouter(prefix="/webhook", tags=["webhook"])
@@ -21,8 +22,6 @@ def verify_webhook(
 
 
 @router.post("")
-async def receive_webhook(request: Request, db: Session = Depends(get_db)):
-    payload = await request.json()
-    print(payload)
+def receive_webhook(payload: WhatsAppWebhookPayload, db: Session = Depends(get_db)):
     process_incoming_message(payload, db)
     return {"status": "ok"}

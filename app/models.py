@@ -27,7 +27,7 @@ class Message(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversations.id"), nullable=False)
     direction = Column(String, nullable=False)
-    body = Column(Text, nullable=False)
+    body = Column(Text, nullable=True)
     whatsapp_message_id = Column(String, unique=True, nullable=True)
     timestamp = Column(DateTime, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)

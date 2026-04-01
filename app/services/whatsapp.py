@@ -2,38 +2,32 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.models import Conversation, Message
+from app.schemas import WhatsAppWebhookPayload
 
 
-def process_incoming_message(payload: dict, db: Session):
+def process_incoming_message(payload: WhatsAppWebhookPayload, db: Session):
     try:
         # Extract data from Meta payload
-        entry = payload.get("entry", [])
-        if not entry:
+        if not payload.entry:
             return None
 
-        changes = entry[0].get("changes", [])
-        if not changes:
-            return None
+        value = payload.entry[0].changes[0].value
 
-        value = changes[0].get("value", {})
-        messages = value.get("messages", [])
-
-        # If no messages, return None (it's a status update or similar)
+        messages = value.messages
         if not messages:
             return None
 
-        contacts = value.get("contacts", [])
+        contacts = value.contacts
         if not contacts:
             return None
 
         # Extract message data
         message_data = messages[0]
-        from_number = message_data.get("from")
-        contact_info = contacts[0]
-        contact_name = contact_info.get("profile", {}).get("name")
-        body = message_data.get("text", {}).get("body")
-        whatsapp_message_id = message_data.get("id")
-        timestamp_unix = int(message_data.get("timestamp", 0))
+        from_number = message_data.from_number
+        contact_name = contacts[0].profile.name
+        body = message_data.text.body if message_data.text else None
+        whatsapp_message_id = message_data.id
+        timestamp_unix = int(message_data.timestamp)
         timestamp = datetime.fromtimestamp(timestamp_unix)
 
         # Find or create Conversation
