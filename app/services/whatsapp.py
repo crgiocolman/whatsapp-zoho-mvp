@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Conversation, Message
 from app.schemas import WhatsAppWebhookPayload
+from app.services.zoho import sync_contact
 
 
 def process_incoming_message(payload: WhatsAppWebhookPayload, db: Session):
@@ -44,6 +45,11 @@ def process_incoming_message(payload: WhatsAppWebhookPayload, db: Session):
             )
             db.add(conversation)
             db.flush()  # Flush to get the ID before creating the message
+
+        if not conversation.zoho_contact_id:
+            zoho_contact_id = sync_contact(from_number, contact_name)
+            if zoho_contact_id:
+                conversation.zoho_contact_id = zoho_contact_id
 
         # Create Message
         message = Message(

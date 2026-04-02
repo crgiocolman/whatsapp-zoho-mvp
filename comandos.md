@@ -55,3 +55,15 @@
 | Comando           | Descripción                                        |
 | ----------------- | -------------------------------------------------- |
 | `ngrok http 8000` | Expone el puerto 8000 públicamente para el webhook |
+
+## Alembic — Migraciones de base de datos
+
+| Comando                                            | Descripción                                                    |
+| -------------------------------------------------- | -------------------------------------------------------------- |
+| `alembic init alembic`                             | Inicializa Alembic en el proyecto (solo una vez)               |
+| `alembic revision --autogenerate -m "descripcion"` | Genera una migración automática basada en cambios en models.py |
+| `alembic upgrade head`                             | Aplica todas las migraciones pendientes a la DB                |
+| `alembic stamp head`                               | Marca el estado actual como línea base sin ejecutar nada       |
+| `alembic current`                                  | Muestra la migración actualmente aplicada                      |
+| `alembic downgrade -1`                             | Revierte la última migración                                   |
+| `alembic history`                                  | Lista todas las migraciones del proyecto                       |

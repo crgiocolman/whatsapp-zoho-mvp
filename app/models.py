@@ -14,6 +14,7 @@ class Conversation(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     contact_number = Column(String, unique=True, nullable=False)
     contact_name = Column(String, nullable=True)
+    zoho_contact_id = Column(String, nullable=True)
     status = Column(String, default="open")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
