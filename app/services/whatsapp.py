@@ -1,9 +1,15 @@
+import logging
 from datetime import datetime
+
+import httpx
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.models import Conversation, Message
 from app.schemas import WhatsAppWebhookPayload
 from app.services.zoho import sync_contact
+
+logger = logging.getLogger(__name__)
 
 
 def process_incoming_message(payload: WhatsAppWebhookPayload, db: Session):
@@ -68,3 +74,52 @@ def process_incoming_message(payload: WhatsAppWebhookPayload, db: Session):
         db.rollback()
         print(f"Error procesando mensaje: {e}")
         return None
+
+
+def send_message(to_number: str, body: str, db: Session) -> dict:
+    try:
+        response = httpx.post(
+            f"https://graph.facebook.com/{settings.WHATSAPP_API_VERSION}/{settings.WHATSAPP_PHONE_NUMBER_ID}/messages",
+            json={
+                "messaging_product": "whatsapp",
+                "to": to_number,
+                "type": "text",
+                "text": {"body": body},
+            },
+            headers={"Authorization": f"Bearer {settings.WHATSAPP_TOKEN}"},
+        )
+        response.raise_for_status()
+
+        if not response.text:
+            raise ValueError("Respuesta vacía de la API de WhatsApp")
+        response_data = response.json()
+
+        # Find or create Conversation
+        conversation = db.query(Conversation).filter_by(contact_number=to_number).first()
+        if not conversation:
+            conversation = Conversation(contact_number=to_number, status="open")
+            db.add(conversation)
+            db.flush()
+
+        whatsapp_message_id = (
+            response_data.get("messages", [{}])[0].get("id")
+            if response_data.get("messages")
+            else None
+        )
+
+        message = Message(
+            conversation_id=conversation.id,
+            direction="outbound",
+            body=body,
+            whatsapp_message_id=whatsapp_message_id,
+            timestamp=datetime.utcnow(),
+        )
+        db.add(message)
+        db.commit()
+
+        return response_data
+
+    except Exception as e:
+        db.rollback()
+        logger.error("Error enviando mensaje a %s: %s", to_number, e)
+        raise

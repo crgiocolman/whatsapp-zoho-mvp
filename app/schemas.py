@@ -58,3 +58,8 @@ class WhatsAppWebhookPayload(BaseModel):
     model_config = ConfigDict(extra="allow")
     object: str
     entry: List[WhatsAppEntry]
+
+
+class SendMessageRequest(BaseModel):
+    to_number: str
+    body: str
