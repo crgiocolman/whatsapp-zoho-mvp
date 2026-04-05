@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Agente</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      background: #f0f2f5;
+      color: #111;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #075e54;
+      color: #fff;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    #app {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 320px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #sidebar-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+      font-weight: 600;
+      font-size: 13px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #refresh-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      color: #075e54;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    #refresh-btn:hover { background: #e8f5e9; }
+
+    #conv-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .conv-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .conv-item:hover { background: #f5f5f5; }
+    .conv-item.active { background: #e7f3ef; border-left: 3px solid #075e54; }
+
+    .conv-name {
+      font-weight: 600;
+      margin-bottom: 3px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .conv-name span.number { font-size: 12px; color: #888; font-weight: 400; }
+
+    .conv-preview {
+      color: #666;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .conv-time {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 3px;
+    }
+
+    .badge-open {
+      display: inline-block;
+      font-size: 10px;
+      background: #dcf8c6;
+      color: #075e54;
+      border-radius: 8px;
+      padding: 1px 6px;
+      font-weight: 600;
+    }
+
+    /* ── Chat area ── */
+    #chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #chat-header {
+      padding: 12px 20px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    #chat-title { font-weight: 600; font-size: 15px; }
+    #chat-subtitle { font-size: 12px; color: #888; }
+
+    #empty-state {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #aaa;
+      font-size: 15px;
+    }
+
+    #messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .msg-bubble {
+      max-width: 65%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .msg-bubble.inbound {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+    }
+
+    .msg-bubble.outbound {
+      background: #dcf8c6;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+
+    .msg-body { margin-bottom: 4px; }
+
+    .msg-meta {
+      font-size: 11px;
+      color: #999;
+      text-align: right;
+    }
+
+    .msg-bubble.inbound .msg-meta { text-align: left; }
+
+    /* ── Input bar ── */
+    #input-bar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #f0f2f5;
+      border-top: 1px solid #ddd;
+      flex-shrink: 0;
+    }
+
+    #msg-input {
+      flex: 1;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 9px 16px;
+      font-size: 14px;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+    }
+    #msg-input:focus { border-color: #075e54; }
+
+    #send-btn {
+      background: #075e54;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 9px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    #send-btn:hover { background: #064d45; }
+    #send-btn:disabled { background: #aaa; cursor: default; }
+
+    #error-banner {
+      display: none;
+      background: #fdecea;
+      color: #c62828;
+      padding: 8px 16px;
+      font-size: 13px;
+      border-top: 1px solid #f5c6c6;
+    }
+  </style>
+</head>
+<body>
+
+<header>WhatsApp — Panel de Agente</header>
+
+<div id="app">
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div id="sidebar-header">
+      Conversaciones
+      <button id="refresh-btn" title="Actualizar lista">&#x21bb;</button>
+    </div>
+    <div id="conv-list"></div>
+  </div>
+
+  <!-- Chat -->
+  <div id="chat">
+    <div id="empty-state">Selecciona una conversación</div>
+
+    <div id="chat-header" style="display:none">
+      <div>
+        <div id="chat-title"></div>
+        <div id="chat-subtitle"></div>
+      </div>
+      <a id="zoho-link" href="#" target="_blank" rel="noopener" style="display:none;margin-left:auto;font-size:12px;color:#075e54;text-decoration:none;border:1px solid #075e54;border-radius:4px;padding:4px 10px;white-space:nowrap;">Ver en Zoho CRM</a>
+    </div>
+
+    <div id="messages-area" style="display:none"></div>
+
+    <div id="error-banner"></div>
+
+    <div id="input-bar" style="display:none">
+      <input id="msg-input" type="text" placeholder="Escribe un mensaje…" autocomplete="off" />
+      <button id="send-btn">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ZOHO_ORG_ID = "912447340";
+
+  const convList     = document.getElementById('conv-list');
+  const emptyState   = document.getElementById('empty-state');
+  const chatHeader   = document.getElementById('chat-header');
+  const chatTitle    = document.getElementById('chat-title');
+  const chatSubtitle = document.getElementById('chat-subtitle');
+  const zohoLink     = document.getElementById('zoho-link');
+  const messagesArea = document.getElementById('messages-area');
+  const inputBar     = document.getElementById('input-bar');
+  const msgInput     = document.getElementById('msg-input');
+  const sendBtn      = document.getElementById('send-btn');
+  const errorBanner  = document.getElementById('error-banner');
+  const refreshBtn   = document.getElementById('refresh-btn');
+
+  let activeConv = null; // { id, contact_number, contact_name }
+
+  // ── Utils ──────────────────────────────────────────────────────────────────
+
+  function showError(msg) {
+    errorBanner.textContent = msg;
+    errorBanner.style.display = 'block';
+    setTimeout(() => { errorBanner.style.display = 'none'; }, 4000);
+  }
+
+  function parseUTC(isoStr) {
+    // API returns naive datetimes (no timezone suffix) that are UTC — append Z so
+    // the browser treats them as UTC and converts to local time for display.
+    if (!isoStr) return new Date(NaN);
+    const s = isoStr.endsWith('Z') || isoStr.includes('+') ? isoStr : isoStr + 'Z';
+    return new Date(s);
+  }
+
+  function formatTime(isoStr) {
+    return parseUTC(isoStr).toLocaleString('es', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatDate(isoStr) {
+    return parseUTC(isoStr).toLocaleString('es', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Conversations ──────────────────────────────────────────────────────────
+
+  async function loadConversations() {
+    try {
+      const res = await fetch('/conversations');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const convs = await res.json();
+      renderConversations(convs);
+    } catch (e) {
+      showError('Error cargando conversaciones: ' + e.message);
+    }
+  }
+
+  function renderConversations(convs) {
+    convList.innerHTML = '';
+
+    if (convs.length === 0) {
+      convList.innerHTML = '<div style="padding:20px;color:#aaa;text-align:center">Sin conversaciones</div>';
+      return;
+    }
+
+    convs.forEach(conv => {
+      const item = document.createElement('div');
+      item.className = 'conv-item' + (activeConv && activeConv.id === conv.id ? ' active' : '');
+      item.dataset.id = conv.id;
+
+      const name = conv.contact_name || conv.contact_number;
+      const preview = conv.last_message_body || '—';
+      const time = formatTime(conv.updated_at);
+      const statusBadge = conv.status === 'open' ? '<span class="badge-open">abierta</span>' : '';
+
+      item.innerHTML = `
+        <div class="conv-name">
+          <span>${escHtml(name)} ${statusBadge}</span>
+          <span class="number">${escHtml(conv.contact_number)}</span>
+        </div>
+        <div class="conv-preview">${escHtml(preview)}</div>
+        <div class="conv-time">${time}</div>
+      `;
+
+      item.addEventListener('click', () => selectConversation(conv));
+      convList.appendChild(item);
+    });
+  }
+
+  // ── Messages ───────────────────────────────────────────────────────────────
+
+  async function selectConversation(conv) {
+    activeConv = conv;
+
+    // Update sidebar active state
+    document.querySelectorAll('.conv-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.id === conv.id);
+    });
+
+    // Show header
+    chatTitle.textContent = conv.contact_name || conv.contact_number;
+    chatSubtitle.textContent = conv.contact_number;
+    if (conv.zoho_contact_id) {
+      zohoLink.href = `https://crm.zoho.com/crm/org${ZOHO_ORG_ID}/tab/Contacts/${conv.zoho_contact_id}`;
+      zohoLink.style.display = 'inline-block';
+    } else {
+      zohoLink.style.display = 'none';
+    }
+    chatHeader.style.display = 'flex';
+    emptyState.style.display = 'none';
+    messagesArea.style.display = 'flex';
+    inputBar.style.display = 'flex';
+
+    await loadMessages(conv.id);
+  }
+
+  async function loadMessages(conversationId) {
+    try {
+      const res = await fetch(`/conversations/${conversationId}/messages`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const msgs = await res.json();
+      renderMessages(msgs);
+    } catch (e) {
+      showError('Error cargando mensajes: ' + e.message);
+    }
+  }
+
+  function renderMessages(msgs) {
+    messagesArea.innerHTML = '';
+
+    if (msgs.length === 0) {
+      messagesArea.innerHTML = '<div style="color:#aaa;text-align:center;margin-top:20px">Sin mensajes</div>';
+      return;
+    }
+
+    msgs.forEach(msg => {
+      const bubble = document.createElement('div');
+      bubble.className = `msg-bubble ${msg.direction}`;
+      bubble.innerHTML = `
+        <div class="msg-body">${escHtml(msg.body || '(sin texto)')}</div>
+        <div class="msg-meta">${formatDate(msg.timestamp)}</div>
+      `;
+      messagesArea.appendChild(bubble);
+    });
+
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+  }
+
+  // ── Send ───────────────────────────────────────────────────────────────────
+
+  async function sendMessage() {
+    if (!activeConv) return;
+    const text = msgInput.value.trim();
+    if (!text) return;
+
+    sendBtn.disabled = true;
+    msgInput.disabled = true;
+
+    try {
+      const res = await fetch('/messages/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to_number: activeConv.contact_number, body: text }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${res.status}`);
+      }
+
+      msgInput.value = '';
+      await loadMessages(activeConv.id);
+    } catch (e) {
+      showError('Error enviando mensaje: ' + e.message);
+    } finally {
+      sendBtn.disabled = false;
+      msgInput.disabled = false;
+      msgInput.focus();
+    }
+  }
+
+  // ── Escape HTML ────────────────────────────────────────────────────────────
+
+  function escHtml(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── Event listeners ────────────────────────────────────────────────────────
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  msgInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  refreshBtn.addEventListener('click', loadConversations);
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+
+  loadConversations();
+</script>
+</body>
+</html>

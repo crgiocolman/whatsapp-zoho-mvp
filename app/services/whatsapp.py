@@ -1,12 +1,14 @@
 import logging
 from datetime import datetime
+from typing import List
 
 import httpx
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.models import Conversation, Message
-from app.schemas import WhatsAppWebhookPayload
+from app.schemas import ConversationResponse, MessageResponse, WhatsAppWebhookPayload
 from app.services.zoho import sync_contact
 
 logger = logging.getLogger(__name__)
@@ -35,7 +37,7 @@ def process_incoming_message(payload: WhatsAppWebhookPayload, db: Session):
         body = message_data.text.body if message_data.text else None
         whatsapp_message_id = message_data.id
         timestamp_unix = int(message_data.timestamp)
-        timestamp = datetime.fromtimestamp(timestamp_unix)
+        timestamp = datetime.utcfromtimestamp(timestamp_unix)
 
         # Find or create Conversation
         conversation = db.query(Conversation).filter_by(contact_number=from_number).first()
@@ -123,3 +125,62 @@ def send_message(to_number: str, body: str, db: Session) -> dict:
         db.rollback()
         logger.error("Error enviando mensaje a %s: %s", to_number, e)
         raise
+
+
+def get_conversations(db: Session) -> List[ConversationResponse]:
+    latest_msg_subq = (
+        db.query(
+            Message.conversation_id,
+            func.max(Message.timestamp).label("max_ts"),
+        )
+        .group_by(Message.conversation_id)
+        .subquery()
+    )
+
+    rows = (
+        db.query(Conversation, Message.body.label("last_message_body"))
+        .outerjoin(latest_msg_subq, Conversation.id == latest_msg_subq.c.conversation_id)
+        .outerjoin(
+            Message,
+            (Message.conversation_id == latest_msg_subq.c.conversation_id)
+            & (Message.timestamp == latest_msg_subq.c.max_ts),
+        )
+        .order_by(Conversation.updated_at.desc())
+        .all()
+    )
+
+    return [
+        ConversationResponse(
+            id=str(conv.id),
+            contact_number=conv.contact_number,
+            contact_name=conv.contact_name,
+            status=conv.status,
+            updated_at=conv.updated_at,
+            zoho_contact_id=conv.zoho_contact_id,
+            last_message_body=last_body,
+        )
+        for conv, last_body in rows
+    ]
+
+
+def get_conversation_messages(conversation_id: str, db: Session) -> List[MessageResponse]:
+    conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    if not conversation:
+        return None
+
+    messages = (
+        db.query(Message)
+        .filter(Message.conversation_id == conversation_id)
+        .order_by(Message.timestamp.asc())
+        .all()
+    )
+
+    return [
+        MessageResponse(
+            id=str(msg.id),
+            direction=msg.direction,
+            body=msg.body,
+            timestamp=msg.timestamp,
+        )
+        for msg in messages
+    ]

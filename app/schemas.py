@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -63,3 +64,22 @@ class WhatsAppWebhookPayload(BaseModel):
 class SendMessageRequest(BaseModel):
     to_number: str
     body: str
+
+
+class ConversationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    contact_number: str
+    contact_name: Optional[str]
+    status: str
+    updated_at: datetime
+    zoho_contact_id: Optional[str] = None
+    last_message_body: Optional[str] = None
+
+
+class MessageResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    direction: str
+    body: Optional[str]
+    timestamp: datetime
