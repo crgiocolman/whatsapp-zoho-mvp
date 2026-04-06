@@ -7,7 +7,10 @@ from app.config import settings
 class Base(DeclarativeBase):
     pass
 
-engine = create_engine(settings.DATABASE_URL)
+db_url = settings.DATABASE_URL.replace(
+    "postgresql://", "postgresql+psycopg2://", 1
+)
+engine = create_engine(db_url)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
