@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiuChat — Roadmap de Producto</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07090d;
+  --s1: #0d1117;
+  --s2: #111820;
+  --s3: #161f2a;
+  --border: #1c2b3a;
+  --border2: #253545;
+  --gold: #e8a020;
+  --gold2: #ffc85a;
+  --cyan: #00c8f0;
+  --green: #00e096;
+  --red: #ff4060;
+  --orange: #ff8c42;
+  --purple: #b06dff;
+  --whatsapp: #25d366;
+  --blue: #1e90ff;
+  --text: #c5d0da;
+  --muted: #4a6070;
+  --white: #e8edf2;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Rajdhani', sans-serif;
+  font-size:15px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:0; opacity:0.4;
+}
+.global-progress { position:fixed; top:0; left:0; right:0; height:3px; background:var(--border); z-index:999; }
+.global-progress-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--green)); transition:width 0.5s ease; }
+.hero {
+  position:relative;
+  padding:80px 48px 56px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(160deg,#0a1525 0%,var(--bg) 60%);
+  overflow:hidden;
+}
+.hero-glow { position:absolute; top:-200px; right:-200px; width:600px; height:600px; background:radial-gradient(circle,rgba(30,144,255,0.05) 0%,transparent 65%); pointer-events:none; }
+.hero-glow2 { position:absolute; bottom:-100px; left:-100px; width:400px; height:400px; background:radial-gradient(circle,rgba(0,224,150,0.04) 0%,transparent 65%); pointer-events:none; }
+.hero-eyebrow { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--cyan); letter-spacing:4px; margin-bottom:20px; display:flex; align-items:center; gap:12px; }
+.hero-eyebrow::before { content:''; width:32px; height:1px; background:var(--cyan); }
+.version-tag { background:rgba(30,144,255,0.1); border:1px solid var(--blue); color:var(--blue); font-size:10px; padding:2px 10px; letter-spacing:2px; }
+.cursor { display:inline-block; width:8px; height:14px; background:var(--cyan); animation:cursorBlink 1.2s infinite; vertical-align:middle; margin-left:4px; }
+@keyframes cursorBlink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(52px,10vw,104px); line-height:0.88; letter-spacing:2px; color:var(--white); margin-bottom:24px; }
+h1 .accent { color:var(--blue); }
+h1 .accent2 { color:var(--green); }
+h1 .small { display:block; font-size:0.38em; color:var(--muted); letter-spacing:10px; margin-bottom:12px; }
+.hero-desc { font-size:14px; color:var(--muted); max-width:580px; line-height:1.9; font-family:'Share Tech Mono',monospace; }
+.hero-desc strong { color:var(--text); }
+.stats-strip { display:flex; border-top:1px solid var(--border); border-bottom:1px solid var(--border); background:var(--s1); overflow-x:auto; }
+.stat-block { padding:20px 32px; border-right:1px solid var(--border); flex-shrink:0; }
+.stat-block:last-child { border-right:none; }
+.stat-val { font-family:'Bebas Neue',sans-serif; font-size:32px; color:var(--blue); letter-spacing:1px; line-height:1; }
+.stat-lbl { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-top:4px; }
+.motivacion { margin:40px 48px 0; padding:28px 32px; background:var(--s1); border:1px solid var(--border); border-left:4px solid var(--red); position:relative; z-index:1; }
+.motivacion-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:3px; color:var(--red); margin-bottom:16px; }
+.pregunta-domingo { margin-top:16px; padding:16px 20px; background:var(--s2); border:1px solid var(--border2); font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--white); line-height:1.8; }
+.pregunta-domingo span { color:var(--blue); font-weight:700; }
+.motivacion-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:16px; }
+.motivacion-item { padding:14px 16px; background:var(--s2); border:1px solid var(--border); font-size:12px; line-height:1.7; }
+.motivacion-item-trigger { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--orange); margin-bottom:6px; letter-spacing:1px; }
+.main { padding:40px 48px 0; position:relative; z-index:1; }
+@media(max-width:700px) {
+  .hero { padding:48px 20px 40px; }
+  .motivacion { margin:24px 20px 0; }
+  .main { padding:24px 20px 0; }
+}
+.sec-header { display:flex; align-items:center; gap:16px; margin:40px 0 20px; }
+.sec-header-line { flex:1; height:1px; background:linear-gradient(90deg,var(--border2),transparent); }
+.sec-header-txt { font-family:'Bebas Neue',sans-serif; font-size:12px; letter-spacing:5px; color:var(--muted); white-space:nowrap; }
+.overview-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; margin-bottom:40px; }
+.ov-card { padding:16px; background:var(--s1); border:1px solid var(--border); cursor:pointer; transition:all 0.15s; text-decoration:none; display:block; }
+.ov-card:hover { border-color:var(--border2); background:var(--s2); }
+.ov-card.active { border-color:var(--blue); background:rgba(30,144,255,0.05); }
+.ov-card.done { border-color:var(--green); opacity:0.6; }
+.ov-card.optional { border-color:var(--purple); opacity:0.7; }
+.ov-num { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--muted); line-height:1; }
+.ov-card.active .ov-num { color:var(--blue); }
+.ov-card.done .ov-num { color:var(--green); }
+.ov-card.optional .ov-num { color:var(--purple); }
+.ov-name { font-size:11px; color:var(--muted); line-height:1.4; margin-top:6px; }
+.ov-card.active .ov-name { color:var(--text); }
+.ov-time { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--muted); margin-top:8px; letter-spacing:1px; }
+.ov-bar { height:2px; background:var(--border); margin-top:10px; overflow:hidden; }
+.ov-bar-fill { height:100%; background:var(--blue); transition:width 0.5s ease; }
+.ov-card.done .ov-bar-fill { background:var(--green); width:100%!important; }
+.phase { background:var(--s1); border:1px solid var(--border); margin-bottom:16px; overflow:hidden; scroll-margin-top:20px; }
+.phase.current { border-color:var(--blue); }
+.phase.completed { border-color:var(--green); opacity:0.75; }
+.phase.optional-phase { border-color:var(--purple); opacity:0.8; }
+.phase-header { display:grid; grid-template-columns:auto 1fr auto; gap:20px; padding:22px 28px; align-items:center; cursor:pointer; transition:background 0.15s; user-select:none; }
+.phase-header:hover { background:rgba(255,255,255,0.02); }
+.phase.current .phase-header { border-left:3px solid var(--blue); }
+.phase.completed .phase-header { border-left:3px solid var(--green); }
+.phase.optional-phase .phase-header { border-left:3px solid var(--purple); }
+.phase-num { font-family:'Bebas Neue',sans-serif; font-size:40px; color:var(--border2); line-height:1; min-width:52px; }
+.phase.current .phase-num { color:var(--blue); }
+.phase.completed .phase-num { color:var(--green); }
+.phase.optional-phase .phase-num { color:var(--purple); }
+.phase-info { flex:1; min-width:0; }
+.phase-badges { display:flex; gap:8px; margin-bottom:6px; flex-wrap:wrap; }
+.badge { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; padding:2px 8px; border:1px solid; }
+.badge.main { border-color:var(--blue); color:var(--blue); }
+.badge.current-badge { background:var(--blue); border-color:var(--blue); color:#fff; font-weight:700; }
+.badge.done-badge { background:var(--green); border-color:var(--green); color:#000; font-weight:700; }
+.badge.optional-badge { border-color:var(--purple); color:var(--purple); }
+.badge.product { border-color:var(--whatsapp); color:var(--whatsapp); }
+.badge.infra { border-color:var(--cyan); color:var(--cyan); }
+.badge.ux { border-color:var(--orange); color:var(--orange); }
+.phase-title { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:1px; color:var(--white); line-height:1.1; }
+.phase-sub { font-size:12px; color:var(--muted); margin-top:3px; }
+.phase-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0; }
+.phase-time { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--cyan); white-space:nowrap; }
+.phase-progress-txt { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); }
+.phase-toggle { font-size:18px; color:var(--muted); transition:transform 0.2s; margin-top:4px; }
+.phase.open .phase-toggle { transform:rotate(180deg); }
+.phase-body { display:none; padding:0 28px 28px; border-top:1px solid var(--border); }
+.phase.open .phase-body { display:block; }
+.why-box { margin-top:20px; padding:14px 18px; background:var(--s2); border-left:3px solid var(--cyan); font-size:13px; color:var(--text); line-height:1.7; }
+.why-label { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--cyan); letter-spacing:3px; margin-bottom:6px; }
+.sub-header { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--muted); padding:16px 0 6px; text-transform:uppercase; display:flex; align-items:center; gap:10px; }
+.sub-header::after { content:''; flex:1; height:1px; background:var(--border); }
+.checklist { display:flex; flex-direction:column; gap:6px; }
+.check-item { display:flex; align-items:flex-start; gap:12px; padding:10px 14px; background:var(--s2); border:1px solid var(--border); font-size:13px; color:var(--text); line-height:1.5; cursor:pointer; transition:all 0.15s; user-select:none; }
+.check-item:hover { border-color:var(--border2); background:var(--s3); }
+.check-item.done { opacity:0.45; text-decoration:line-through; text-decoration-color:var(--muted); }
+.check-box { width:16px; height:16px; border:1px solid var(--border2); flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+.check-item.done .check-box { background:var(--green); border-color:var(--green); }
+.check-tick { display:none; color:#000; font-size:10px; font-weight:900; }
+.check-item.done .check-tick { display:block; }
+.check-item.important { border-left:2px solid var(--orange); }
+.check-item.breaking { border-left:2px solid var(--red); }
+.output-box { margin-top:20px; padding:16px 20px; background:rgba(30,144,255,0.04); border:1px dashed rgba(30,144,255,0.4); font-size:13px; color:var(--text); line-height:1.7; }
+.output-label { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--blue); letter-spacing:3px; margin-bottom:8px; }
+.timeline-strip { display:flex; gap:0; margin:20px 0; overflow-x:auto; border:1px solid var(--border); }
+.tl-block { flex:1; min-width:120px; padding:12px 14px; background:var(--s2); border-right:1px solid var(--border); font-size:11px; }
+.tl-block:last-child { border-right:none; }
+.tl-block.done-hl { background:rgba(0,224,150,0.04); }
+.tl-block.current-hl { background:rgba(30,144,255,0.06); }
+.tl-block.optional-hl { background:rgba(176,109,255,0.04); }
+.tl-month { font-family:'Bebas Neue',sans-serif; font-size:16px; color:var(--blue); letter-spacing:1px; }
+.tl-block.done-hl .tl-month { color:var(--green); }
+.tl-block.optional-hl .tl-month { color:var(--purple); }
+.tl-content { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--muted); line-height:1.7; margin-top:4px; }
+.weekly-log { background:var(--s1); border:1px solid var(--border); border-left:4px solid var(--cyan); padding:28px 32px; margin:40px 0 0; }
+.weekly-title { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; color:var(--cyan); margin-bottom:20px; }
+.log-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+.log-entry { padding:16px 20px; background:var(--s2); border:1px solid var(--border); }
+.log-week { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:12px; }
+.log-field { margin-bottom:10px; }
+.log-field-label { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:2px; margin-bottom:4px; }
+.log-field input, .log-field textarea { width:100%; background:var(--s3); border:1px solid var(--border); color:var(--text); font-family:'Share Tech Mono',monospace; font-size:11px; padding:8px 10px; outline:none; resize:vertical; transition:border-color 0.15s; }
+.log-field input:focus, .log-field textarea:focus { border-color:var(--cyan); }
+.log-yn { display:flex; gap:8px; }
+.yn-btn { padding:6px 16px; background:var(--s3); border:1px solid var(--border); color:var(--muted); font-family:'Share Tech Mono',monospace; font-size:11px; cursor:pointer; transition:all 0.15s; }
+.yn-btn:hover { border-color:var(--border2); color:var(--text); }
+.yn-btn.selected-yes { background:rgba(0,224,150,0.1); border-color:var(--green); color:var(--green); }
+.yn-btn.selected-no { background:rgba(255,64,96,0.1); border-color:var(--red); color:var(--red); }
+.log-save { margin-top:12px; padding:8px 20px; background:transparent; border:1px solid var(--cyan); color:var(--cyan); font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; cursor:pointer; transition:all 0.15s; width:100%; }
+.log-save:hover { background:rgba(0,200,240,0.1); }
+.alerts { background:var(--s1); border:1px solid var(--border); border-left:4px solid var(--red); padding:28px 32px; margin:24px 0 80px; }
+.alerts-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:3px; color:var(--red); margin-bottom:16px; }
+.alert-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; }
+.alert-item { padding:14px 16px; background:var(--s2); border:1px solid var(--border); font-size:12px; line-height:1.7; }
+.alert-trigger { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--orange); margin-bottom:6px; }
+.alert-response strong { color:var(--cyan); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.hero { animation:fadeUp 0.5s ease both; }
+.motivacion { animation:fadeUp 0.5s ease 0.1s both; }
+</style>
+</head>
+<body>
+
+<div class="global-progress"><div class="global-progress-fill" id="globalProgress" style="width:0%"></div></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div><div class="hero-glow2"></div>
+  <div class="hero-eyebrow">
+    ROADMAP DE PRODUCTO
+    <span class="version-tag">V6 — SIUCHAT</span>
+    <span class="cursor"></span>
+  </div>
+  <h1>
+    <span class="small">Construyendo</span>
+    <span class="accent">Siu</span><span class="accent2">Chat</span>
+  </h1>
+  <p class="hero-desc">
+    Backend dev desde 2019. Python, FastAPI, ecosistema Zoho.<br>
+    <strong>Producto:</strong> Plataforma multi-tenant de WhatsApp Business para empresas Zoho.<br>
+    <strong>Estado:</strong> MVP en producción en Railway. Primer cliente activo.<br>
+    <strong>Principio:</strong> Cada feature se diseña en detalle antes de implementar. Sin apuros.
+  </p>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-block"><div class="stat-val">10-15h</div><div class="stat-lbl">Por semana</div></div>
+  <div class="stat-block"><div class="stat-val">9</div><div class="stat-lbl">Fases totales</div></div>
+  <div class="stat-block"><div class="stat-val" id="statFase">FASE 4</div><div class="stat-lbl">Fase actual</div></div>
+  <div class="stat-block"><div class="stat-val" id="statPct">0%</div><div class="stat-lbl">Completado</div></div>
+  <div class="stat-block"><div class="stat-val" id="statItems">0</div><div class="stat-lbl">Tareas hechas</div></div>
+</div>
+
+<!-- MOTIVACION -->
+<div class="motivacion">
+  <div class="motivacion-title">⚡ REGLA DE ORO — FASE 4 EN ADELANTE</div>
+  <div class="pregunta-domingo">
+    Antes de escribir una sola línea de código:<br>
+    <span>"¿Está completamente diseñado y validado en el chat?"</span><br>
+    SÍ → podés ir a Claude Code. NO → seguís diseñando. Sin excepciones.
+  </div>
+  <div class="motivacion-grid">
+    <div class="motivacion-item"><div class="motivacion-item-trigger">"Esto parece simple, lo implemento directo"</div>Las cosas simples mal diseñadas se vuelven deuda técnica. Diseñá primero, siempre.</div>
+    <div class="motivacion-item"><div class="motivacion-item-trigger">"No tengo energía"</div>Sesión de 20 min. Solo abrí el código y leé lo último que escribiste.</div>
+    <div class="motivacion-item"><div class="motivacion-item-trigger">"No sé por dónde seguir"</div>Buscá la fase actual. Hacé el primer ítem sin tilde. Solo uno.</div>
+    <div class="motivacion-item"><div class="motivacion-item-trigger">"Perdí 2 semanas"</div>No es fracaso, es pausa. Retomá desde donde estás. SiuChat sigue esperando.</div>
+    <div class="motivacion-item"><div class="motivacion-item-trigger">"El proyecto es muy grande"</div>Solo mirá la fase actual. Un bloque a la vez. El diseño previo evita el reproceso.</div>
+    <div class="motivacion-item"><div class="motivacion-item-trigger">"Hay algo más interesante"</div>Anotalo. Volvé después de terminar esta fase. Ya pasó con la guitarra y el gym.</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="sec-header"><div class="sec-header-line"></div><div class="sec-header-txt">Calendario general</div><div class="sec-header-line"></div></div>
+
+  <div class="timeline-strip">
+    <div class="tl-block done-hl">
+      <div class="tl-month">FASES 0-3 ✓</div>
+      <div class="tl-content">MVP completo<br>En producción<br>Railway + PostgreSQL<br>Primer cliente activo</div>
+    </div>
+    <div class="tl-block current-hl">
+      <div class="tl-month">FASE 4</div>
+      <div class="tl-content">Multi-tenant<br>Multi-channel<br>Meta Embedded<br>Signup + Zoho OAuth</div>
+    </div>
+    <div class="tl-block current-hl">
+      <div class="tl-month">FASE 5</div>
+      <div class="tl-content">Frontend SPA<br>Login con Zoho<br>Roles y permisos<br>Encriptación tokens</div>
+    </div>
+    <div class="tl-block current-hl">
+      <div class="tl-month">FASE 6</div>
+      <div class="tl-content">Estados de chat<br>Ventana 24hs<br>Tiempo real (WS)<br>Rate limiting</div>
+    </div>
+    <div class="tl-block current-hl">
+      <div class="tl-month">FASE 7</div>
+      <div class="tl-content">Responder mensaje<br>Ficha de contacto<br>Plantillas Meta<br>Búsqueda</div>
+    </div>
+    <div class="tl-block current-hl">
+      <div class="tl-month">FASE 8</div>
+      <div class="tl-content">Multimedia<br>Carga progresiva<br>Notificaciones push<br>Pulido UX</div>
+    </div>
+    <div class="tl-block current-hl">
+      <div class="tl-month">FASE 9</div>
+      <div class="tl-content">Sync Zoho CRM<br>Auditoría<br>Suscripciones<br>Escala</div>
+    </div>
+    <div class="tl-block optional-hl">
+      <div class="tl-month">OPCIONAL</div>
+      <div class="tl-content">Zoho Books<br>IA / Claude<br>RAG<br>MCP</div>
+    </div>
+  </div>
+
+  <div class="sec-header"><div class="sec-header-line"></div><div class="sec-header-txt">Vista general por fase</div><div class="sec-header-line"></div></div>
+
+  <div class="overview-grid">
+    <a class="ov-card done" href="#fase0" id="ov0"><div class="ov-num">0-3</div><div class="ov-name">MVP Completo</div><div class="ov-time">COMPLETADAS ✓</div><div class="ov-bar"><div class="ov-bar-fill" id="bar0" style="width:100%"></div></div></a>
+    <a class="ov-card active" href="#fase4" id="ov4"><div class="ov-num">4</div><div class="ov-name">Multi-tenant + Multi-channel</div><div class="ov-time">6–8 semanas</div><div class="ov-bar"><div class="ov-bar-fill" id="bar4" style="width:0%"></div></div></a>
+    <a class="ov-card" href="#fase5" id="ov5"><div class="ov-num">5</div><div class="ov-name">Frontend SPA + Login + Roles</div><div class="ov-time">6–8 semanas</div><div class="ov-bar"><div class="ov-bar-fill" id="bar5" style="width:0%"></div></div></a>
+    <a class="ov-card" href="#fase6" id="ov6"><div class="ov-num">6</div><div class="ov-name">Chat en tiempo real</div><div class="ov-time">4–5 semanas</div><div class="ov-bar"><div class="ov-bar-fill" id="bar6" style="width:0%"></div></div></a>
+    <a class="ov-card" href="#fase7" id="ov7"><div class="ov-num">7</div><div class="ov-name">Chat avanzado</div><div class="ov-time">3–4 semanas</div><div class="ov-bar"><div class="ov-bar-fill" id="bar7" style="width:0%"></div></div></a>
+    <a class="ov-card" href="#fase8" id="ov8"><div class="ov-num">8</div><div class="ov-name">Multimedia + UX</div><div class="ov-time">3–4 semanas</div><div class="ov-bar"><div class="ov-bar-fill" id="bar8" style="width:0%"></div></div></a>
+    <a class="ov-card" href="#fase9" id="ov9"><div class="ov-num">9</div><div class="ov-name">Sync + Auditoría + Escala</div><div class="ov-time">4–5 semanas</div><div class="ov-bar"><div class="ov-bar-fill" id="bar9" style="width:0%"></div></div></a>
+    <a class="ov-card optional" href="#faseOpt" id="ovOpt"><div class="ov-num">★</div><div class="ov-name">Opcional: IA + Zoho Books</div><div class="ov-time">Futuro</div><div class="ov-bar"><div class="ov-bar-fill" id="barOpt" style="width:0%"></div></div></a>
+  </div>
+
+  <div class="sec-header"><div class="sec-header-line"></div><div class="sec-header-txt">Fases detalladas</div><div class="sec-header-line"></div></div>
+
+  <!-- FASES 0-3 COMPLETADAS -->
+  <div class="phase completed" id="fase0">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-num">0–3</div>
+      <div class="phase-info">
+        <div class="phase-badges"><span class="badge done-badge">✓ COMPLETADAS</span></div>
+        <div class="phase-title">MVP — Python, API, Webhook, Panel, Deploy</div>
+        <div class="phase-sub">Backend en producción · Panel de agente · Railway + PostgreSQL · Meta app publicada · Primer cliente activo</div>
+      </div>
+      <div class="phase-right">
+        <div class="phase-time">Completadas</div>
+        <div class="phase-toggle">▾</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="why-box">
+        <div class="why-label">Lo que construiste</div>
+        FastAPI + PostgreSQL + Alembic · Webhook WhatsApp (GET verificación + POST recepción) · Sync Zoho CRM (find-or-create por número) · POST /messages/send · Panel agente vanilla JS (lista conversaciones, historial, respuesta, link Zoho CRM) · Deploy Railway con dominio público · Token permanente Meta System User · App Meta publicada · Número real +595 983 275273 conectado.
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 4 -->
+  <div class="phase current open" id="fase4">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-num">4</div>
+      <div class="phase-info">
+        <div class="phase-badges"><span class="badge current-badge">▶ FASE ACTUAL</span><span class="badge infra">ARQUITECTURA BASE</span></div>
+        <div class="phase-title">Multi-tenant + Multi-channel + Onboarding</div>
+        <div class="phase-sub">La arquitectura que hace que SiuChat sea un producto real para múltiples empresas</div>
+      </div>
+      <div class="phase-right">
+        <div class="phase-time">6–8 semanas</div>
+        <div class="phase-progress-txt" id="prog4">0 / 22 tareas</div>
+        <div class="phase-toggle">▾</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="why-box">
+        <div class="why-label">Por qué esta fase es la más crítica del proyecto</div>
+        Todo lo que viene después — roles, tiempo real, multimedia — se construye encima de esta arquitectura. Si multi-tenant está mal diseñado, cada feature siguiente acumula deuda técnica. Esta fase se diseña en detalle antes de tocar una sola línea de código.
+      </div>
+
+      <div class="sub-header">Entorno de desarrollo local</div>
+      <div class="checklist" data-phase="4">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Setup local: PostgreSQL en Docker + FastAPI con <code>uvicorn --reload</code></div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Configurar ngrok para apuntar el webhook de Meta al backend local durante desarrollo</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Validar que el flujo actual (pre multi-tenant) funciona 100% en local antes de refactorizar</div>
+      </div>
+
+      <div class="sub-header">Schema multi-tenant — nuevas tablas</div>
+      <div class="checklist" data-phase="4">
+        <div class="check-item important breaking" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar y validar en chat: tabla <strong>tenants</strong> (id, name, plan enum, status enum, timestamps)</div>
+        <div class="check-item important breaking" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar y validar en chat: tabla <strong>users</strong> — schema only, sin flow de login (FK a tenant, zoho_user_id nullable, role enum)</div>
+        <div class="check-item important breaking" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar y validar en chat: tabla <strong>channels</strong> (phone_number_id unique global, business_account_id, token, display_phone_number, created_by)</div>
+        <div class="check-item important breaking" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar y validar en chat: tabla <strong>contacts</strong> por tenant (UNIQUE tenant_id + phone_number, email y notes nullable)</div>
+        <div class="check-item important breaking" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar y validar en chat: tabla <strong>zoho_connections</strong> (tenant_id UNIQUE, org_id UNIQUE global, region, token_expires_at)</div>
+        <div class="check-item breaking" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Modificar <strong>conversations</strong>: agregar tenant_id, channel_id, contact_id (FK), status enum, last_message_at; eliminar contact_number/contact_name/zoho_contact_id (migran a contacts)</div>
+        <div class="check-item breaking" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Modificar <strong>messages</strong>: agregar tenant_id denormalizado</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Migración Alembic <strong>única y atómica</strong>, probada con upgrade + downgrade + upgrade en local</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Seed script <code>scripts/seed_initial_tenant.py</code> — crea tenant "Dev Tech Py" + user admin + channel + zoho_connection desde env vars</div>
+      </div>
+
+      <div class="sub-header">Integración Zoho por tenant</div>
+      <div class="checklist" data-phase="4">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>OAuth flow de Zoho por tenant — cada empresa conecta su propio Zoho (implementación directa, sin MCP)</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Refactorizar <code>services/zoho.py</code> para usar credenciales del tenant desde BD, no del .env global</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Cache de access_token usando <code>token_expires_at</code> — refresh solo si venció o está por vencer (&lt;5 min)</div>
+      </div>
+
+      <div class="sub-header">Meta Embedded Signup — onboarding de canales</div>
+      <div class="checklist" data-phase="4">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat el flujo completo: login FB → selección negocio → selección/creación cuenta WA → callback → guardar en BD</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Implementar Meta Embedded Signup SDK en el panel de onboarding</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Endpoint callback que recibe el token y datos del canal y los guarda asociados al tenant</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Webhook dinámico: rutear mensajes entrantes al tenant+channel correcto según phone_number_id</div>
+      </div>
+
+      <div class="sub-header">Página de registro de SiuChat</div>
+      <div class="checklist" data-phase="4">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat el flujo de registro: nombre empresa, email del admin, crear tenant + primer user (role=admin)</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Página de registro simple — después del registro, lleva al onboarding de canal (Meta Embedded Signup) y luego a conectar Zoho</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Verificar que el segundo tenant no puede ver datos del primero — test de aislamiento</div>
+      </div>
+
+      <div class="output-box">
+        <div class="output-label">Output que demuestra que terminaste</div>
+        Podés registrar una segunda empresa en SiuChat, conectar su número de WhatsApp via Meta Embedded Signup, y conectar su Zoho. Los mensajes de cada empresa llegan a su tenant aislado. El primer cliente sigue funcionando sin cambios.
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 5 -->
+  <div class="phase" id="fase5">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-num">5</div>
+      <div class="phase-info">
+        <div class="phase-badges"><span class="badge main">ACCESO Y CONTROL</span><span class="badge ux">+ FRONTEND</span></div>
+        <div class="phase-title">Frontend SPA + Login con Zoho + Roles + Asignación</div>
+        <div class="phase-sub">Migración a SPA, autenticación real, múltiples usuarios por organización con permisos</div>
+      </div>
+      <div class="phase-right">
+        <div class="phase-time">6–8 semanas</div>
+        <div class="phase-progress-txt" id="prog5">0 / 18 tareas</div>
+        <div class="phase-toggle">▾</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="why-box">
+        <div class="why-label">Por qué se migra el frontend acá y no antes</div>
+        El vanilla JS del MVP funcionó para Fase 4, pero con login, sesiones, rutas protegidas y múltiples vistas, se vuelve inmantenible rápido. Fase 5 es el momento natural para pasar a SPA porque el frontend ya tiene que manejar autenticación y estado complejo. Se hace antes de agregar tiempo real (Fase 6), para no tener que reescribir la lógica de WebSockets dos veces.
+      </div>
+
+      <div class="sub-header">Migración a frontend SPA</div>
+      <div class="checklist" data-phase="5">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Elegir framework (React / Vue / Svelte) y armar proyecto nuevo en <code>siuchat-frontend/</code> con Vite</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Migrar el panel actual al SPA: listado de conversaciones, historial de chat, envío de mensajes</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Decidir deploy: FastAPI sirve el build, o Vercel/Netlify con subdominio <code>app.siuchat.com</code></div>
+      </div>
+
+      <div class="sub-header">Encriptación de tokens</div>
+      <div class="checklist" data-phase="5">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Agregar <code>ENCRYPTION_KEY</code> a env vars y generar clave con Fernet</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Encriptar <code>channels.token</code>, <code>zoho_connections.access_token</code> y <code>refresh_token</code> a nivel aplicación</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Migración de datos: encriptar tokens existentes en la BD actual</div>
+      </div>
+
+      <div class="sub-header">Login con Zoho</div>
+      <div class="checklist" data-phase="5">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat: flujo completo de login — usuario hace OAuth con Zoho → se identifica el tenant → se crea sesión</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Popular <code>users.zoho_user_id</code> en el primer login exitoso (la tabla ya existe desde Fase 4)</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Manejo de sesiones — JWT o session token, definir en chat antes de implementar</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Proteger el panel — solo usuarios autenticados del tenant correcto pueden acceder</div>
+      </div>
+
+      <div class="sub-header">Roles y permisos</div>
+      <div class="checklist" data-phase="5">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat los permisos concretos por rol (admin / supervisor / agent ya definidos en Fase 4)</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Admin: gestión de usuarios, canales, configuración del tenant</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Supervisor: ve todas las conversaciones del tenant, puede reasignar</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Agente: ve solo sus conversaciones asignadas</div>
+      </div>
+
+      <div class="sub-header">Propietario de chat y asignación</div>
+      <div class="checklist" data-phase="5">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Campo <strong>assigned_to</strong> en conversations (FK → users)</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Asignación manual: Admin/Supervisor puede asignar cualquier chat a cualquier agente</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Regla de asignación equitativa: nuevo mensaje sin asignar → se asigna al agente con menos chats activos</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Auditoría básica: registrar quién respondió qué mensaje y cuándo</div>
+      </div>
+
+      <div class="output-box">
+        <div class="output-label">Output que demuestra que terminaste</div>
+        Un Admin crea usuarios en su organización. Cada agente hace login con su cuenta Zoho y ve solo sus chats asignados. El supervisor ve todos. Los nuevos chats se asignan automáticamente de forma equitativa.
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 6 -->
+  <div class="phase" id="fase6">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-num">6</div>
+      <div class="phase-info">
+        <div class="phase-badges"><span class="badge product">CHAT EN TIEMPO REAL</span></div>
+        <div class="phase-title">Estados de chat + Mensajes en tiempo real + WebSockets</div>
+        <div class="phase-sub">De un panel que recarga a una experiencia de chat real</div>
+      </div>
+      <div class="phase-right">
+        <div class="phase-time">4–5 semanas</div>
+        <div class="phase-progress-txt" id="prog6">0 / 12 tareas</div>
+        <div class="phase-toggle">▾</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="why-box">
+        <div class="why-label">Por qué va en este orden</div>
+        Tiempo real requiere que los usuarios estén identificados (Fase 5) para saber a qué canal de WebSocket conectarlos. Los estados de chat con ventana de 24hs son fundamentales para WhatsApp Business — sin esto el panel muestra información incorrecta a los agentes.
+      </div>
+
+      <div class="sub-header">Estados de chat y ventana de 24hs</div>
+      <div class="checklist" data-phase="6">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat: estados de conversación — abierta / esperando / resuelta / expirada</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Lógica de ventana 24hs: si el cliente no escribió en 24hs, solo se puede iniciar conversación con plantilla</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Indicador visual de ventana en el panel — el agente sabe si puede responder libremente o no</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Job/tarea periódica que actualiza estados expirados automáticamente</div>
+      </div>
+
+      <div class="sub-header">Estados de mensajes</div>
+      <div class="checklist" data-phase="6">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat: recibir webhooks de status de Meta (sent / delivered / read)</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Guardar status en tabla messages y mostrarlo en el panel (✓ enviado, ✓✓ entregado, ✓✓ leído en azul)</div>
+      </div>
+
+      <div class="sub-header">Tiempo real con WebSockets</div>
+      <div class="checklist" data-phase="6">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat la arquitectura WebSocket: canales por tenant, reconexión automática</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Cuando llega un mensaje nuevo → push via WebSocket al panel del agente correspondiente</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Actualización de estado de mensaje en tiempo real (leído, entregado)</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Indicador de conexión en el panel — el agente sabe si está conectado al WebSocket</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Búsqueda de conversaciones por número, nombre o texto de mensaje</div>
+      </div>
+
+      <div class="sub-header">Protección contra bursts</div>
+      <div class="checklist" data-phase="6">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Rate limiting en el webhook — limitar requests por <code>phone_number_id</code> por segundo para proteger contra bursts de Meta (movido desde Fase 8)</div>
+      </div>
+
+      <div class="output-box">
+        <div class="output-label">Output que demuestra que terminaste</div>
+        El agente tiene el panel abierto. Un cliente manda un mensaje. Sin recargar la página, el mensaje aparece en tiempo real. El panel muestra si el mensaje fue entregado y leído. El agente sabe si puede responder libremente o necesita una plantilla.
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 7 -->
+  <div class="phase" id="fase7">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-num">7</div>
+      <div class="phase-info">
+        <div class="phase-badges"><span class="badge product">CHAT AVANZADO</span></div>
+        <div class="phase-title">Responder mensaje + Ficha de contacto + Plantillas</div>
+        <div class="phase-sub">Las features que convierten el panel en una herramienta de trabajo real</div>
+      </div>
+      <div class="phase-right">
+        <div class="phase-time">3–4 semanas</div>
+        <div class="phase-progress-txt" id="prog7">0 / 9 tareas</div>
+        <div class="phase-toggle">▾</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="why-box">
+        <div class="why-label">Por qué en este orden</div>
+        Las plantillas dependen de la lógica de ventana 24hs (Fase 6) — si la ventana está cerrada, el agente necesita plantillas para iniciar. La ficha de contacto se enriquece con datos de Zoho CRM que ya tenés sincronizados. Responder mensaje es UX pura que mejora dramáticamente la experiencia del agente.
+      </div>
+
+      <div class="sub-header">Responder mensaje</div>
+      <div class="checklist" data-phase="7">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat: cómo se guarda la referencia al mensaje original en la DB y cómo se muestra en el panel</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>UI: click derecho o botón en burbuja → "Responder" → aparece preview del mensaje original sobre el input</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Enviar la referencia a la API de Meta para que WhatsApp lo muestre como reply</div>
+      </div>
+
+      <div class="sub-header">Ficha de contacto</div>
+      <div class="checklist" data-phase="7">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Panel lateral con datos del contacto: nombre, número, email, empresa (desde Zoho CRM)</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Mostrar historial de conversaciones anteriores del mismo contacto</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Link directo al contacto en Zoho CRM (ya existe, integrar en la ficha)</div>
+      </div>
+
+      <div class="sub-header">Plantillas de Meta</div>
+      <div class="checklist" data-phase="7">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat: sincronización de plantillas aprobadas desde la cuenta de Meta del tenant</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Selector de plantillas en el panel — disponible siempre, obligatorio cuando la ventana 24hs está cerrada</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Rellenar variables de la plantilla antes de enviar (nombre del cliente, número de orden, etc.)</div>
+      </div>
+
+      <div class="output-box">
+        <div class="output-label">Output que demuestra que terminaste</div>
+        El agente puede responder a un mensaje específico como en WhatsApp. Ve la ficha completa del contacto con sus datos de Zoho. Si la ventana de 24hs está cerrada, selecciona una plantilla aprobada y la envía con las variables completadas.
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 8 -->
+  <div class="phase" id="fase8">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-num">8</div>
+      <div class="phase-info">
+        <div class="phase-badges"><span class="badge ux">UX + MULTIMEDIA</span></div>
+        <div class="phase-title">Multimedia + Carga progresiva + Notificaciones push</div>
+        <div class="phase-sub">Pulido del producto — de funcional a placentero de usar</div>
+      </div>
+      <div class="phase-right">
+        <div class="phase-time">3–4 semanas</div>
+        <div class="phase-progress-txt" id="prog8">0 / 9 tareas</div>
+        <div class="phase-toggle">▾</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="why-box">
+        <div class="why-label">Por qué va al final del ciclo de chat</div>
+        El multimedia y las notificaciones mejoran la experiencia pero no cambian la arquitectura. Van después de que toda la lógica de negocio esté estable. La carga progresiva también presupone que hay suficientes mensajes en producción para que sea necesaria.
+      </div>
+
+      <div class="sub-header">Mensajes multimedia</div>
+      <div class="checklist" data-phase="8">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat: tipos soportados — imagen, audio, video, documento. Storage: S3 o Railway volume</div>
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Recibir multimedia: descargar de Meta, guardar en storage, mostrar en el panel</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Enviar multimedia: upload desde el panel → enviar via API de Meta</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Previsualización en el chat: imagen inline, audio con player, documento con nombre y tamaño</div>
+      </div>
+
+      <div class="sub-header">Carga progresiva de mensajes</div>
+      <div class="checklist" data-phase="8">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat: paginación del GET /conversations/{id}/messages — cargar los últimos N al abrir</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Al hacer scroll hacia arriba → cargar bloque anterior sin perder la posición actual</div>
+      </div>
+
+      <div class="sub-header">Notificaciones push</div>
+      <div class="checklist" data-phase="8">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat: Web Push API o servicio externo (OneSignal/Firebase) — evaluar opciones</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Notificación cuando llega un mensaje nuevo al agente (aunque no tenga el panel abierto)</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Notificación configurable por usuario — el agente puede silenciar</div>
+      </div>
+
+      <div class="output-box">
+        <div class="output-label">Output que demuestra que terminaste</div>
+        El agente recibe una notificación push en su celular cuando llega un mensaje. Abre el panel, ve imágenes y archivos inline. En conversaciones largas, el scroll carga mensajes anteriores sin perder el contexto.
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 9 -->
+  <div class="phase" id="fase9">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-num">9</div>
+      <div class="phase-info">
+        <div class="phase-badges"><span class="badge main">ESCALA Y NEGOCIO</span></div>
+        <div class="phase-title">Sync Zoho CRM + Auditoría + Suscripciones</div>
+        <div class="phase-sub">Sincronización avanzada, métricas para supervisores, y modelo de cobro</div>
+      </div>
+      <div class="phase-right">
+        <div class="phase-time">4–5 semanas</div>
+        <div class="phase-progress-txt" id="prog9">0 / 9 tareas</div>
+        <div class="phase-toggle">▾</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="why-box">
+        <div class="why-label">Por qué es la última fase del ciclo principal</div>
+        La sincronización avanzada con Zoho (owner changes) requiere webhooks de Zoho que a su vez requieren una configuración estable por tenant. Las suscripciones van al final porque primero necesitás clientes usando el producto para saber qué planes tienen sentido.
+      </div>
+
+      <div class="sub-header">Sincronización avanzada con Zoho CRM</div>
+      <div class="checklist" data-phase="9">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat: webhook de Zoho CRM → si el propietario de un Lead/Contacto cambia en Zoho, actualizar assigned_to en SiuChat</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Y al revés: si el agente cambia en SiuChat, actualizar el propietario en Zoho CRM</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Manejo de conflictos: definir cuál sistema tiene prioridad cuando ambos cambian al mismo tiempo</div>
+      </div>
+
+      <div class="sub-header">Auditoría y métricas</div>
+      <div class="checklist" data-phase="9">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Dashboard para supervisores: chats por agente, tiempo promedio de respuesta, chats resueltos</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Log de acciones: quién asignó, reasignó, resolvió cada chat</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Exportación básica de historial de conversaciones (CSV o PDF)</div>
+      </div>
+
+      <div class="sub-header">Suscripciones</div>
+      <div class="checklist" data-phase="9">
+        <div class="check-item important" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Diseñar en chat los planes: Free / Pro / Business — límites por conversaciones, agentes, canales</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Integrar Stripe o MercadoPago para cobro recurrente</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Límites automáticos por plan — cortar o degradar cuando supera el tier</div>
+      </div>
+
+      <div class="output-box">
+        <div class="output-label">Output que demuestra que terminaste</div>
+        Cuando el dueño de un lead cambia en Zoho, SiuChat reasigna el chat automáticamente. El supervisor ve métricas de su equipo. Los tenants pagan por plan y el sistema aplica límites automáticamente. SiuChat es un negocio.
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE OPCIONAL -->
+  <div class="phase optional-phase" id="faseOpt">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-num">★</div>
+      <div class="phase-info">
+        <div class="phase-badges"><span class="badge optional-badge">OPCIONAL — FUTURO</span></div>
+        <div class="phase-title">IA con Claude + Zoho Books + RAG</div>
+        <div class="phase-sub">Upsell premium — se activa cuando el cliente lo pide, no antes</div>
+      </div>
+      <div class="phase-right">
+        <div class="phase-time">Futuro</div>
+        <div class="phase-toggle">▾</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="why-box">
+        <div class="why-label">Por qué es opcional y no obligatoria</div>
+        La IA y Zoho Books son upsells, no el core del producto. Un cliente que ya confía en SiuChat es más fácil de convencer de activar IA que uno nuevo. Además, RAG bien hecho requiere que el cliente tenga su base de conocimiento estructurada — eso lleva tiempo.
+      </div>
+
+      <div class="sub-header">Agente IA con Claude</div>
+      <div class="checklist" data-phase="opt">
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Toggle por tenant: activar/desactivar sugerencias de IA</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Dado el historial → Claude sugiere respuesta al agente (el agente decide si enviar)</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Modo autónomo opcional: IA responde automáticamente en horario no hábil</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>RAG: cada tenant sube su base de conocimiento → IA responde basada en el contexto del negocio</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Explorar Zoho MCP para simplificar integraciones</div>
+      </div>
+
+      <div class="sub-header">Integración Zoho Books</div>
+      <div class="checklist" data-phase="opt">
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Verificar si el contacto tiene facturas pendientes en Zoho Books al abrir una conversación</div>
+        <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div>Mostrar resumen de cuenta del contacto en la ficha</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEKLY LOG -->
+  <div class="sec-header"><div class="sec-header-line"></div><div class="sec-header-txt">Registro semanal</div><div class="sec-header-line"></div></div>
+  <div class="weekly-log">
+    <div class="weekly-title">📅 Esta semana</div>
+    <div class="log-grid">
+      <div class="log-entry">
+        <div class="log-week">SEMANA ACTUAL</div>
+        <div class="log-field"><div class="log-field-label">Horas invertidas</div><input type="text" id="logHoras" placeholder="ej: 8h"></div>
+        <div class="log-field">
+          <div class="log-field-label">¿Diseñé antes de implementar?</div>
+          <div class="log-yn">
+            <button class="yn-btn" onclick="selectYN(this,'yes')">SÍ</button>
+            <button class="yn-btn" onclick="selectYN(this,'no')">NO</button>
+          </div>
+        </div>
+        <div class="log-field"><div class="log-field-label">Qué construí o avancé</div><textarea id="logConstrui" rows="2" placeholder="..."></textarea></div>
+      </div>
+      <div class="log-entry">
+        <div class="log-week">REFLEXIÓN</div>
+        <div class="log-field"><div class="log-field-label">Qué trabó</div><textarea id="logTrabo" rows="2" placeholder="..."></textarea></div>
+        <div class="log-field"><div class="log-field-label">Compromiso próxima semana</div><textarea id="logCompromiso" rows="2" placeholder="Voy a..."></textarea></div>
+        <button class="log-save" onclick="saveLog()">// GUARDAR REGISTRO</button>
+      </div>
+    </div>
+    <div id="logHistory" style="margin-top:16px;"></div>
+  </div>
+
+  <!-- ALERTS -->
+  <div class="sec-header"><div class="sec-header-line"></div><div class="sec-header-txt">Señales de alerta</div><div class="sec-header-line"></div></div>
+  <div class="alerts">
+    <div class="alerts-title">🔴 Cuando quieras saltarte el diseño</div>
+    <div class="alert-grid">
+      <div class="alert-item"><div class="alert-trigger">"Esto parece simple, lo implemento directo"</div><div class="alert-response"><strong>Diseñá primero.</strong> Las cosas simples mal diseñadas son la raíz de toda deuda técnica.</div></div>
+      <div class="alert-item"><div class="alert-trigger">"Llevo días sin tocar esto"</div><div class="alert-response">Sesión de 20 min. <strong>Solo abrí el proyecto y leé el último código.</strong></div></div>
+      <div class="alert-item"><div class="alert-trigger">"El proyecto es muy grande"</div><div class="alert-response"><strong>Solo mirá la fase actual.</strong> Un bloque a la vez. SiuChat se construye de a una feature bien hecha.</div></div>
+      <div class="alert-item"><div class="alert-trigger">"Hay algo más interesante"</div><div class="alert-response">Normal. <strong>Anotalo. Volvé después de terminar esta fase.</strong></div></div>
+      <div class="alert-item"><div class="alert-trigger">"Perdí 2 semanas"</div><div class="alert-response"><strong>Retomá desde donde estás.</strong> SiuChat sigue esperando. No desde el principio.</div></div>
+      <div class="alert-item"><div class="alert-trigger">"No sirvo para esto"</div><div class="alert-response"><strong>Tenés un MVP en producción con clientes reales.</strong> Eso ya lo hiciste. Seguís.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let state = {};
+try { state = JSON.parse(localStorage.getItem('roadmap_siuchat_v2') || '{}'); } catch(e) {}
+if(!state.checks) state.checks = {};
+if(!state.logs) state.logs = [];
+const KEY = 'sc_v2_';
+
+function togglePhase(header) { header.parentElement.classList.toggle('open'); }
+
+function toggle(item) {
+  item.classList.toggle('done');
+  const list = item.closest('[data-phase]');
+  const phase = list.dataset.phase;
+  const items = document.querySelectorAll(`[data-phase="${phase}"] .check-item`);
+  const idx = Array.from(items).indexOf(item);
+  if(idx !== -1) { state.checks[`${KEY}p${phase}_${idx}`] = item.classList.contains('done'); save(); updateStats(); }
+}
+
+function save() { try { localStorage.setItem('roadmap_siuchat_v2', JSON.stringify(state)); } catch(e) {} }
+
+function loadState() {
+  ['4','5','6','7','8','9','opt'].forEach(phase => {
+    const items = document.querySelectorAll(`[data-phase="${phase}"] .check-item`);
+    items.forEach((item, idx) => { if(state.checks[`${KEY}p${phase}_${idx}`]) item.classList.add('done'); });
+  });
+  updateStats(); renderLogs();
+}
+
+function updateStats() {
+  let totalDone = 0, totalAll = 0;
+  ['4','5','6','7','8','9'].forEach(p => {
+    const all = document.querySelectorAll(`[data-phase="${p}"] .check-item`).length;
+    const done = document.querySelectorAll(`[data-phase="${p}"] .check-item.done`).length;
+    totalDone += done; totalAll += all;
+    const pct = all > 0 ? Math.round(done/all*100) : 0;
+    const bar = document.getElementById(`bar${p}`);
+    const prog = document.getElementById(`prog${p}`);
+    if(bar) bar.style.width = pct + '%';
+    if(prog) prog.textContent = `${done} / ${all} tareas`;
+    const ov = document.getElementById(`ov${p}`);
+    if(ov) { ov.classList.remove('done'); if(pct===100) ov.classList.add('done'); }
+  });
+
+  const globalPct = totalAll > 0 ? Math.round(totalDone/totalAll*100) : 0;
+  document.getElementById('globalProgress').style.width = globalPct + '%';
+  document.getElementById('statPct').textContent = globalPct + '%';
+  document.getElementById('statItems').textContent = totalDone;
+
+  let currentFase = 4;
+  for(let p of ['4','5','6','7','8','9']) {
+    const all = document.querySelectorAll(`[data-phase="${p}"] .check-item`).length;
+    const done = document.querySelectorAll(`[data-phase="${p}"] .check-item.done`).length;
+    if(done < all) { currentFase = p; break; }
+  }
+  document.getElementById('statFase').textContent = `FASE ${currentFase}`;
+}
+
+function selectYN(btn, val) {
+  btn.parentElement.querySelectorAll('.yn-btn').forEach(b => b.className = 'yn-btn');
+  btn.classList.add(val==='yes' ? 'selected-yes' : 'selected-no');
+  state.currentYN = val;
+}
+
+function saveLog() {
+  const horas = document.getElementById('logHoras').value.trim();
+  const construi = document.getElementById('logConstrui').value.trim();
+  const trabo = document.getElementById('logTrabo').value.trim();
+  const compromiso = document.getElementById('logCompromiso').value.trim();
+  if(!horas && !construi) return;
+  const dateStr = new Date().toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'numeric'});
+  state.logs.unshift({date:dateStr, horas, yn:state.currentYN, construi, trabo, compromiso});
+  save();
+  ['logHoras','logConstrui','logTrabo','logCompromiso'].forEach(id => document.getElementById(id).value='');
+  document.querySelectorAll('.yn-btn').forEach(b => b.className='yn-btn');
+  state.currentYN = null;
+  renderLogs();
+}
+
+function renderLogs() {
+  const container = document.getElementById('logHistory');
+  if(!state.logs || !state.logs.length) { container.innerHTML=''; return; }
+  container.innerHTML = `
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:3px;margin-bottom:12px;padding-top:16px;border-top:1px solid var(--border)">HISTORIAL RECIENTE</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
+      ${state.logs.slice(0,4).map(log=>`
+        <div style="padding:12px 14px;background:var(--s2);border:1px solid var(--border);font-size:11px">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:6px">${log.date} · ${log.horas||'?h'}</div>
+          <div style="color:${log.yn==='yes'?'var(--green)':log.yn==='no'?'var(--red)':'var(--muted)'}">
+            ${log.yn==='yes'?'✓ Diseñé antes de implementar':log.yn==='no'?'✗ Implementé sin diseñar':'— Sin marcar'}
+          </div>
+          ${log.construi?`<div style="color:var(--text);margin-top:6px;line-height:1.5">${log.construi.substring(0,80)}${log.construi.length>80?'...':''}</div>`:''}
+        </div>`).join('')}
+    </div>`;
+}
+
+loadState();
+</script>
+</body>
+</html>
