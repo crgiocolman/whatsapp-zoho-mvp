@@ -10,10 +10,10 @@ class Settings(BaseSettings):
     ZOHO_CLIENT_ID: str
     ZOHO_CLIENT_SECRET: str
     ZOHO_REFRESH_TOKEN: str
-    ZOHO_BASE_URL: str
 
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 settings = Settings()

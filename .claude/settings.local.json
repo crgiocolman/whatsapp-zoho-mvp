@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(alembic revision *)",
+      "Bash(docker start *)",
+      "Bash(alembic downgrade *)",
+      "Bash(alembic upgrade *)",
+      "Bash(python -c ' *)",
+      "Bash(python -m scripts.seed_initial_tenant)",
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(python -m scripts.test_zoho_refresh)"
+    ]
+  }
+}
