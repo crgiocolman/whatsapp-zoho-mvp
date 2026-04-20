@@ -25,6 +25,7 @@ Hacer esto en Fase 4 era prácticamente gratis (vaciábamos las tablas igual). H
 **Decisión:** Un contacto tiene máximo una conversación por canal. El `tenant_id` queda implícito porque `channel_id` → `tenant_id` vía FK.
 
 **Alternativas descartadas:**
+
 - `UNIQUE (tenant_id, contact_number)` — un contacto = una conversación por empresa. Muy permisivo si la empresa tiene múltiples canales.
 - `UNIQUE (tenant_id, channel_id, contact_number)` — redundante, porque `channel_id` ya determina `tenant_id`.
 
@@ -131,9 +132,26 @@ Reemplazo está planificado en Bloque B.
 **Decisión:** `zoho_service.sync_contact(db, zoho_conn, phone, name)` en lugar de `(db, tenant_id, phone, name)`.
 
 **Por qué:**
+
 - El caller (router o webhook handler) ya tiene resuelto el tenant y probablemente el `ZohoConnection` también. Volver a hacer la query en el service es trabajo duplicado.
 - Testing más simple: mock de `ZohoConnection` directo, no requiere DB.
 - Más explícito: leer la firma del service dice qué recursos usa.
+
+### Webhooks externos como dict libre, no como Pydantic model en el router
+
+Decisión: POST /webhook recibe Request, parsea JSON internamente, intenta
+validar con schema en try/except, siempre retorna 2xx.
+
+Por qué: El router del webhook con Pydantic como body tipo causaba 422 cuando
+Meta mandaba eventos que el schema no modelaba (status updates, templates).
+Meta interpreta 422 como fallo y reintenta agresivamente. Validación estricta
+en la puerta se vuelve frágil porque los proveedores externos agregan campos
+nuevos sin previo aviso. Validación defensiva dentro del service + 200 OK
+siempre es más robusto.
+
+Trade-off: perdemos validación automática en el endpoint. La aceptamos porque
+los schemas internos (ConversationResponse, SendMessageRequest) siguen
+tipados — solo el punto de entrada de datos externos es dict libre.
 
 ---
 

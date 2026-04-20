@@ -2,7 +2,7 @@
 
 Memoria operativa del proyecto. Leer esto primero al retomar después de una pausa.
 
-**Última actualización:** cierre de Fase 4 Bloque A.4.a + reestructuración de documentación.
+**Última actualización:** cierre de Fase 4 Bloque A completo + decisión de avanzar con Bloque B.
 
 ---
 
@@ -10,18 +10,34 @@ Memoria operativa del proyecto. Leer esto primero al retomar después de una pau
 
 **Fase 4 — Multi-tenant + Multi-channel + Onboarding**
 
-Progreso del Bloque A:
+Progreso:
 
-- [x] A.1 Modelos y enums
-- [x] A.2 Migración Alembic
-- [x] A.3 Seed del tenant inicial
-- [x] A.4.a Refactor services/zoho.py
-- [ ] **A.4.b Refactor services/whatsapp.py** ← próximo paso
-- [ ] A.4.c Refactor routers + panel
+- [x] **Bloque A — Schema + seed + services** (CERRADO)
+  - [x] A.1 Modelos y enums
+  - [x] A.2 Migración Alembic
+  - [x] A.3 Seed del tenant inicial
+  - [x] A.4.a Refactor services/zoho.py
+  - [x] A.4.b Refactor services/whatsapp.py
+  - [x] A.4.c Refactor routers + panel + fixes finales
+- [ ] **Bloque B — Meta Embedded Signup** ← próximo paso
+- [ ] Bloque C — Zoho OAuth real (reemplazar Self Client)
+- [ ] Bloque D — Página de registro de tenants
 
-Bloques pendientes de Fase 4: B (Meta Embedded Signup), C (Zoho OAuth real), D (Registro).
+Detalle del roadmap en `docs/roadmap.md`.
 
-Detalle completo del roadmap en `docs/roadmap.md`.
+---
+
+## Estado validado al cierre del Bloque A
+
+Pipeline end-to-end funcionando con 1 tenant ("Dev Tech Py"):
+
+- Webhook Meta recibe mensajes entrantes y status updates, siempre retorna 200 OK
+- Service resuelve tenant+channel por `phone_number_id` correctamente
+- Find-or-create de `Contact` y `Conversation` con filtros multi-tenant
+- Sync con Zoho CRM funcional (refresh on-demand de access_token)
+- Panel vanilla JS lista conversaciones, muestra historial, envía respuestas
+- Link a Zoho CRM desde el panel usa `zoho_org_id` dinámico del tenant
+- Orden de mensajes en el panel coincide con el flujo real (timestamp de procesamiento)
 
 ---
 
@@ -42,35 +58,19 @@ Detalle completo del roadmap en `docs/roadmap.md`.
 
 ### Estado Zoho
 
-Access token real refrescado en A.4.a. Ya no es `SEEDED_PLACEHOLDER`.
+Access token real refrescado automáticamente. No es `SEEDED_PLACEHOLDER`.
 
-Hay un contacto de prueba en Zoho CRM real ("Test Contact SiuChat", ID `7212255000000694001`) creado durante A.4.a — conviene borrarlo.
-
----
-
-## Archivos creados/modificados en Bloque A
-
-**Creados:** `app/enums.py`, `scripts/__init__.py`, `scripts/seed_initial_tenant.py`, `scripts/test_zoho_refresh.py` (en .gitignore), migración alembic.
-
-**Modificados:** `app/models.py`, `app/services/zoho.py`, `app/config.py` (extra=ignore + ZOHO_BASE_URL eliminado).
-
-**No modificados todavía** (los toca A.4.b y A.4.c):
-
-- `app/services/whatsapp.py`
-- `app/routers/*.py`
-- `app/static/index.html`
+Contactos reales sincronizados en Zoho CRM durante las pruebas end-to-end (Sergio Colman, con `zoho_contact_id = 7212255000000673001`).
 
 ---
 
 ## Variables de entorno (.env local)
 
-Referencia rápida de qué variables están en `.env`. Las marcadas como "solo seed" pueden eliminarse una vez que Bloques B, C, D estén completos.
-
 ```
 # Base de datos
 DATABASE_URL=postgresql://admin:admin123@localhost:5432/whatsapp_zoho
 
-# WhatsApp / Meta — en BD después de A.4.b
+# WhatsApp / Meta — en BD después del seed
 WHATSAPP_TOKEN=...
 WHATSAPP_PHONE_NUMBER_ID=1056198860910219
 WHATSAPP_BUSINESS_ACCOUNT_ID=1272036547749246   (solo seed)
@@ -79,9 +79,9 @@ WHATSAPP_DISPLAY_NAME=Dev Tech Py               (solo seed)
 WHATSAPP_VERIFY_TOKEN=...
 WHATSAPP_API_VERSION=v19.0
 
-# Zoho — credenciales del Self Client de Dev Tech Py (transitorias)
-ZOHO_CLIENT_ID=...                              (app OAuth global — ver design-decisions.md)
-ZOHO_CLIENT_SECRET=...                          (idem)
+# Zoho — credenciales del Self Client de Dev Tech Py (transitorias, reemplazar en Bloque C)
+ZOHO_CLIENT_ID=...
+ZOHO_CLIENT_SECRET=...
 ZOHO_REFRESH_TOKEN=1000.bf62e2cbefb16d6...     (solo seed — ya en BD)
 ZOHO_ORG_ID=912447340                           (solo seed)
 ZOHO_REGION=com                                 (solo seed)
@@ -92,7 +92,7 @@ SEED_ADMIN_EMAIL=sacst.py@gmail.com
 SEED_ADMIN_NAME=Sergio
 ```
 
-**Nota:** `ZOHO_BASE_URL` fue eliminado — ahora se arma dinámico desde `region` en BD.
+`ZOHO_BASE_URL` eliminado — se arma dinámico desde `region` en BD.
 
 ---
 
@@ -123,40 +123,73 @@ ngrok http 8000
 
 ## Próximo paso concreto
 
-**A.4.b — Refactor de `app/services/whatsapp.py`.**
+**Bloque B — Meta Embedded Signup**
 
-Prompt listo en `docs/prompt-a4b.md`.
+Objetivo: permitir que un segundo tenant conecte su número de WhatsApp Business desde el panel de onboarding, sin intervención manual del admin de SiuChat.
 
-Secuencia:
+**Antes de arrancar Bloque B** — pendiente hacer en Meta Developer Console:
 
-1. Confirmar `git status` limpio
-2. Abrir Claude Code en el repo
-3. Activar **Plan Mode** (Shift+Tab)
-4. Pegar prompt y revisar plan antes de aprobar
-5. Revisar diffs archivo por archivo
+- Configurar la app Meta para soportar Embedded Signup
+- Definir URL de callback (producción + local via ngrok)
+- Revisar permisos de la app (`whatsapp_business_management`, `whatsapp_business_messaging`)
+- Agregar testers si hace falta para desarrollo
 
-Después de A.4.b: ver `docs/prompt-a4c-outline.md` para armar el prompt A.4.c en Claude.ai.
+**Pasos de diseño** (hacer en Claude.ai antes de prompts a Claude Code):
+
+1. Decidir shape del endpoint callback (query params vs POST, qué datos recibe de Meta)
+2. Decidir flujo del panel de onboarding: ¿nueva página? ¿dentro del panel actual?
+3. Decidir cómo identificar qué tenant está haciendo el onboarding (sin login aún — puede ser temporal con session storage o query param)
+4. Validar el flujo end-to-end con un segundo número WhatsApp de prueba antes de refactorizar el panel completo
+
+**Secuencia sugerida** (a validar en Claude.ai):
+
+- B.1 — Configuración de Meta Developer Console (fuera de código)
+- B.2 — Endpoint backend que recibe callback y crea Channel
+- B.3 — Página de onboarding con SDK de Meta Embedded Signup
+- B.4 — Flujo end-to-end con segundo tenant de prueba
+
+---
+
+## Bugs conocidos / deuda técnica aceptada
+
+- **Timestamp de Meta no se preserva**: los mensajes inbound usan `datetime.now(utc)` en el service, no el timestamp que manda Meta (`message.timestamp`). Se agregará campo `meta_timestamp` en Fase 6 junto con `messages.status`.
+- **Panel HTML vanilla**: funciona para 1 tenant, no tiene login, tenant_id se resuelve via `/api/current-tenant` transicional. Migración a SPA en Fase 5.
+- **Credenciales Zoho del Self Client**: solo sirven para Dev Tech Py. Reemplazar por app OAuth "SiuChat" central en Bloque C (no antes de intentar conectar otro tenant).
+- **Sin tests automatizados**: todo se validó manualmente. Si algún refactor de B o C rompe algo de A, se va a descubrir corriendo flujos a mano.
 
 ---
 
 ## Documentación del proyecto
 
-| Archivo                        | Para qué                      | Frecuencia de cambio             |
-| ------------------------------ | ----------------------------- | -------------------------------- |
-| `CLAUDE.md`                    | Reglas activas del proyecto   | Bajo                             |
-| `HANDOFF.md` (este)            | Estado operativo actual       | Alto                             |
-| `docs/roadmap.md`              | Fases y bloques               | Bajo                             |
-| `docs/design-decisions.md`     | Historial de por qué          | Bajo                             |
-| `docs/common-patterns.md`      | Patrones de código            | Bajo                             |
-| `docs/claude-code-workflow.md` | Guía operativa de Claude Code | Bajo                             |
-| `docs/prompt-a4b.md`           | Prompt listo para A.4.b       | Cada bloque nuevo                |
-| `docs/prompt-a4c-outline.md`   | Outline (no prompt completo)  | Se completa cuando A.4.b termina |
+| Archivo                        | Para qué                      | Frecuencia de cambio |
+| ------------------------------ | ----------------------------- | -------------------- |
+| `CLAUDE.md`                    | Reglas activas del proyecto   | Bajo                 |
+| `HANDOFF.md` (este)            | Estado operativo actual       | Alto                 |
+| `docs/roadmap.md`              | Fases y bloques               | Bajo                 |
+| `docs/design-decisions.md`     | Historial de por qué          | Bajo                 |
+| `docs/common-patterns.md`      | Patrones de código            | Bajo                 |
+| `docs/claude-code-workflow.md` | Guía operativa de Claude Code | Bajo                 |
+| `docs/prompt-a4b.md`           | Prompt de A.4.b (histórico)   | Ya no se usa         |
+| `docs/prompt-a4c-outline.md`   | Outline de A.4.c (histórico)  | Ya no se usa         |
+
+**Nota**: los prompts `prompt-a4b.md` y `prompt-a4c-outline.md` quedan como referencia histórica. El Bloque A ya está cerrado. Para Bloque B se generará un nuevo `docs/prompt-b1.md` (o similar) cuando se diseñe el próximo paso en Claude.ai.
 
 ---
 
-## Pendientes no bloqueantes
+## Pendientes operativos
 
-- Borrar "Test Contact SiuChat" (ID 7212255000000694001) de Zoho CRM real
-- Al cerrar Fase 4: evaluar qué variables de `.env` pueden eliminarse (ya viven en BD)
-- En Bloque B: reemplazar credenciales del Self Client por app OAuth "SiuChat" central
-- Antes de Fase 7: buscar 1-2 clientes externos reales
+- [ ] Borrar "Test Contact SiuChat" (ID 7212255000000694001) de Zoho CRM real si todavía no se hizo
+- [ ] Al cerrar Fase 4 completa: evaluar qué variables `WHATSAPP_*` y `ZOHO_*` del `.env` pueden eliminarse (ya viven en BD)
+- [ ] En Bloque C: reemplazar credenciales del Self Client por app OAuth "SiuChat" central
+- [ ] Antes de Fase 7: buscar 1-2 clientes externos reales (señal más valiosa que seguir probando con el propio negocio)
+
+---
+
+## Cómo retomar después de la pausa
+
+1. Leer este archivo (HANDOFF.md) primero
+2. `git log --oneline -20` para ver últimos commits
+3. Verificar entorno local: `docker ps`, venv activado, `alembic current`
+4. Levantar backend: `uvicorn app.main:app --reload`
+5. Abrir `http://localhost:8000/panel` — debería cargar con conversaciones previas
+6. Para avanzar con Bloque B: volver a Claude.ai (este chat o uno nuevo con project knowledge actualizado) y diseñar los pasos antes de tocar Claude Code

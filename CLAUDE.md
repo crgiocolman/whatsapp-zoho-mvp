@@ -62,6 +62,11 @@ FastAPI + SQLAlchemy + PostgreSQL + Pydantic v2 + httpx + Alembic. Docker local,
 - `logger` para errores en services, nunca `print`
 - `print` solo debug temporal, eliminar antes de commit
 - Toda función que modifique BD vive en service, no en router
+- Mensajes (inbound/outbound) usan timestamp de procesamiento con
+  datetime.now(timezone.utc), no timestamp del proveedor externo. Así
+  el orden de mensajes en el panel refleja el flujo real de la
+  conversación. El timestamp original del proveedor se preserva en
+  campo separado cuando corresponde (Fase 6 para meta_timestamp).
 
 ---
 
@@ -95,6 +100,10 @@ FastAPI + SQLAlchemy + PostgreSQL + Pydantic v2 + httpx + Alembic. Docker local,
 - Sync Zoho falla (network, 401, timeout) → guardar mensaje con `contact.zoho_contact_id = None`. No perder mensajes por culpa de Zoho
 - Cada mensaje es transacción independiente
 - Idempotencia: verificar `whatsapp_message_id` duplicado antes de insertar (Meta reenvía si no respondemos 200 rápido)
+- Webhooks externos (Meta, Zoho, otros proveedores) se reciben como dict
+  libre, no como Pydantic model en el router. El router siempre responde
+  2xx al proveedor. Validación estricta ocurre dentro del service con
+  try/except.
 
 ---
 
