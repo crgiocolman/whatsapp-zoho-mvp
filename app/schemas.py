@@ -1,7 +1,10 @@
 from datetime import datetime
 from typing import List, Optional
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from app.enums import ConversationStatus
 
 
 class WhatsAppProfile(BaseModel):
@@ -11,7 +14,7 @@ class WhatsAppProfile(BaseModel):
 
 class WhatsAppContact(BaseModel):
     model_config = ConfigDict(extra="allow")
-    profile: WhatsAppProfile
+    profile: Optional[WhatsAppProfile] = None
     wa_id: str
 
 
@@ -41,6 +44,7 @@ class WhatsAppValue(BaseModel):
     metadata: WhatsAppMetadata
     contacts: Optional[List[WhatsAppContact]] = None
     messages: Optional[List[WhatsAppMessage]] = None
+    statuses: Optional[List[dict]] = None
 
 
 class WhatsAppChange(BaseModel):
@@ -62,24 +66,36 @@ class WhatsAppWebhookPayload(BaseModel):
 
 
 class SendMessageRequest(BaseModel):
-    to_number: str
-    body: str
+    conversation_id: UUID
+    text: str
+
+
+class ContactSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    phone_number: str
+    name: Optional[str] = None
+    zoho_contact_id: Optional[str] = None
+
+
+class ChannelSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    display_phone_number: str
+    display_name: Optional[str] = None
 
 
 class ConversationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: str
-    contact_number: str
-    contact_name: Optional[str]
-    status: str
-    updated_at: datetime
-    zoho_contact_id: Optional[str] = None
-    last_message_body: Optional[str] = None
+    id: UUID
+    status: ConversationStatus
+    last_message_at: Optional[datetime] = None
+    created_at: datetime
+    contact: ContactSummary
+    channel: ChannelSummary
 
 
 class MessageResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: str
+    id: UUID
     direction: str
-    body: Optional[str]
+    body: Optional[str] = None
     timestamp: datetime

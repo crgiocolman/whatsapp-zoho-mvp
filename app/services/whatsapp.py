@@ -28,7 +28,7 @@ def _extract_contact_name(
         return None
     for c in contacts:
         if c.wa_id == phone_number:
-            return c.profile.name
+            return c.profile.name if c.profile else None
     return None
 
 
@@ -147,6 +147,17 @@ def _process_single_message(
     if existing:
         return
 
+    if message.type != "text":
+        logger.warning(
+            "Tipo de mensaje no soportado todavia: %s. "
+            "whatsapp_message_id=%s, phone_number=%s. "
+            "Soporte multimedia se implementa en Fase 8.",
+            message.type,
+            message.id,
+            message.from_number,
+        )
+        return
+
     phone_number = message.from_number
     contact_name = _extract_contact_name(phone_number, contacts)
     tenant_id = channel.tenant_id
@@ -165,7 +176,10 @@ def _process_single_message(
         contact = _find_or_create_contact(db, tenant_id, phone_number, contact_name, zoho_conn)
         conversation = _find_or_create_conversation(db, tenant_id, channel.id, contact.id)
 
-        timestamp_dt = datetime.fromtimestamp(int(message.timestamp), tz=timezone.utc)
+        # Usar timestamp de procesamiento para consistencia de orden en el panel.
+        # El timestamp original de Meta (message.timestamp) se preservará en Fase 6
+        # cuando se agregue messages.meta_timestamp junto con messages.status.
+        timestamp_dt = datetime.now(timezone.utc)
         body = message.text.body if message.text else None
 
         message_obj = Message(

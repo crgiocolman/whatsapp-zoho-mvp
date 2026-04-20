@@ -233,7 +233,7 @@
 </head>
 <body>
 
-<header>WhatsApp — Panel de Agente</header>
+<header>WhatsApp — Panel de Agente &nbsp;<span id="tenant-name" style="font-size:13px;font-weight:400;opacity:0.8"></span></header>
 
 <div id="app">
   <!-- Sidebar -->
@@ -269,7 +269,8 @@
 </div>
 
 <script>
-  const ZOHO_ORG_ID = "912447340";
+  let tenantId  = null;
+  let zohoOrgId = null;
 
   const convList     = document.getElementById('conv-list');
   const emptyState   = document.getElementById('empty-state');
@@ -284,7 +285,23 @@
   const errorBanner  = document.getElementById('error-banner');
   const refreshBtn   = document.getElementById('refresh-btn');
 
-  let activeConv = null; // { id, contact_number, contact_name }
+  let activeConv = null; // { id, contact, channel, status, last_message_at }
+
+  // ── Init tenant ────────────────────────────────────────────────────────────
+
+  async function initTenant() {
+    try {
+      const res = await fetch('/api/current-tenant');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      tenantId  = data.tenant_id;
+      zohoOrgId = data.zoho_org_id;
+      document.getElementById('tenant-name').textContent = data.name || '';
+      loadConversations();
+    } catch (e) {
+      showError('No se pudo obtener el tenant: ' + e.message);
+    }
+  }
 
   // ── Utils ──────────────────────────────────────────────────────────────────
 
@@ -303,6 +320,7 @@
   }
 
   function formatTime(isoStr) {
+    if (!isoStr) return 'Sin mensajes';
     return parseUTC(isoStr).toLocaleString('es', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
   }
 
@@ -314,7 +332,7 @@
 
   async function loadConversations() {
     try {
-      const res = await fetch('/conversations');
+      const res = await fetch(`/conversations?tenant_id=${tenantId}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const convs = await res.json();
       renderConversations(convs);
@@ -336,15 +354,15 @@
       item.className = 'conv-item' + (activeConv && activeConv.id === conv.id ? ' active' : '');
       item.dataset.id = conv.id;
 
-      const name = conv.contact_name || conv.contact_number;
+      const name = conv.contact?.name || conv.contact?.phone_number;
       const preview = conv.last_message_body || '—';
-      const time = formatTime(conv.updated_at);
+      const time = formatTime(conv.last_message_at);
       const statusBadge = conv.status === 'open' ? '<span class="badge-open">abierta</span>' : '';
 
       item.innerHTML = `
         <div class="conv-name">
           <span>${escHtml(name)} ${statusBadge}</span>
-          <span class="number">${escHtml(conv.contact_number)}</span>
+          <span class="number">${escHtml(conv.contact?.phone_number || '')}</span>
         </div>
         <div class="conv-preview">${escHtml(preview)}</div>
         <div class="conv-time">${time}</div>
@@ -366,10 +384,10 @@
     });
 
     // Show header
-    chatTitle.textContent = conv.contact_name || conv.contact_number;
-    chatSubtitle.textContent = conv.contact_number;
-    if (conv.zoho_contact_id) {
-      zohoLink.href = `https://crm.zoho.com/crm/org${ZOHO_ORG_ID}/tab/Contacts/${conv.zoho_contact_id}`;
+    chatTitle.textContent = conv.contact?.name || conv.contact?.phone_number;
+    chatSubtitle.textContent = conv.contact?.phone_number;
+    if (conv.contact?.zoho_contact_id && zohoOrgId) {
+      zohoLink.href = `https://crm.zoho.com/crm/org${zohoOrgId}/tab/Contacts/${conv.contact.zoho_contact_id}`;
       zohoLink.style.display = 'inline-block';
     } else {
       zohoLink.style.display = 'none';
@@ -384,7 +402,7 @@
 
   async function loadMessages(conversationId) {
     try {
-      const res = await fetch(`/conversations/${conversationId}/messages`);
+      const res = await fetch(`/conversations/${conversationId}/messages?tenant_id=${tenantId}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const msgs = await res.json();
       renderMessages(msgs);
@@ -425,10 +443,10 @@
     msgInput.disabled = true;
 
     try {
-      const res = await fetch('/messages/send', {
+      const res = await fetch(`/messages/send?tenant_id=${tenantId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to_number: activeConv.contact_number, body: text }),
+        body: JSON.stringify({ conversation_id: activeConv.id, text }),
       });
 
       if (!res.ok) {
@@ -473,7 +491,7 @@
 
   // ── Init ───────────────────────────────────────────────────────────────────
 
-  loadConversations();
+  initTenant();
 </script>
 </body>
 </html>
