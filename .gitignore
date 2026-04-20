@@ -45,3 +45,15 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+# Snippet para agregar al .gitignore existente
+#
+# Agregá estas líneas al final de tu .gitignore si no están ya.
+# NO reemplaces tu .gitignore completo con este archivo.
+
+# Script descartable de test (no commitear, mantener local)
+scripts/test_zoho_refresh.py
+
+# Claude Code logs (si los genera)
+.claude/
+claude-*.log

@@ -1,127 +1,145 @@
 # CLAUDE.md — Reglas del proyecto SiuChat
 
-Plataforma multi-tenant de WhatsApp Business integrada con Zoho CRM.
-Repo: `whatsapp-zoho-mvp` (nombre histórico, producto = SiuChat).
+Plataforma multi-tenant de WhatsApp Business integrada con Zoho CRM. Repo: `whatsapp-zoho-mvp` (nombre histórico, producto = SiuChat).
+
+Para contexto extendido: ver `docs/design-decisions.md` (historial de por qué), `docs/common-patterns.md` (patrones de código del proyecto), `docs/roadmap.md` (fases), `HANDOFF.md` (estado actual operativo).
 
 ---
 
 ## Stack
 
-- FastAPI + SQLAlchemy + PostgreSQL (Docker en local, managed en Railway)
-- Pydantic v2 para validación de datos entrantes
-- httpx para llamadas HTTP externas
-- Alembic para migraciones de base de datos
+FastAPI + SQLAlchemy + PostgreSQL + Pydantic v2 + httpx + Alembic. Docker local, Railway en prod.
 
 ---
 
-## Entornos de desarrollo
+## Entornos
 
-**Local es el entorno de desarrollo por defecto. Producción (Railway) es solo para deploys validados.**
-
-- Desarrollo: PostgreSQL en Docker en la máquina local + FastAPI corriendo con `uvicorn --reload`
-- Webhook de Meta durante desarrollo: ngrok apuntando al backend local
-- El webhook de Meta se cambia manualmente entre URL de ngrok y URL de Railway según corresponda
-- Nunca desarrollar features nuevas directo en producción — siempre validar localmente primero
-- Migraciones de Alembic se prueban en local (aplicar + rollback + aplicar de nuevo) antes de correr en Railway
-- Deploy a Railway solo cuando:
-  1. La feature está completa y validada localmente
-  2. Las migraciones fueron probadas con rollback en local
-  3. Se hizo commit + push a GitHub
+- Desarrollo: Docker Postgres + `uvicorn --reload` + ngrok para webhook de Meta
+- Nunca desarrollar features nuevas directo en producción
+- Migraciones probadas localmente con `upgrade → downgrade → upgrade` antes de Railway
+- Deploy a Railway solo con feature validada + migración probada + commit pusheado
 
 ---
 
 ## Arquitectura
 
 - `Base` vive en `database.py`, no en `models.py`
-- Lógica de negocio exclusivamente en `services/`, nunca en `routers/`
-- Routers solo reciben requests, validan con schemas Pydantic, y delegan a services
-- Schemas Pydantic obligatorios para todo endpoint que reciba datos externos
-- Scripts one-shot (seeds, migraciones de datos) viven en `scripts/`
+- Lógica de negocio en `services/`, nunca en `routers/`
+- Routers: validan con Pydantic y delegan a services
+- Schemas Pydantic obligatorios para todo endpoint con datos externos
+- Scripts one-shot en `scripts/`
 
 ---
 
-## Reglas multi-tenant (críticas)
+## Multi-tenant (crítico)
 
-**Toda query que toque `conversations`, `messages`, `contacts`, `channels`, `users` o `zoho_connections` debe filtrar por `tenant_id`. Sin excepciones.**
-
-- Todo service recibe `tenant_id` como parámetro (o lo deriva del usuario autenticado)
-- Nunca hardcodear IDs de tenant, channel, user o contact en código de producción
-- El webhook entrante identifica el tenant+channel por `phone_number_id` que provee Meta
-- Ningún endpoint público debe exponer datos sin pasar por un filtro de tenant
-- `tenant_id` se denormaliza en `conversations` y `messages` para evitar JOINs en queries frecuentes — mantener la consistencia es responsabilidad del service (si se inserta un message, su tenant_id debe coincidir con el de su conversation)
+- Toda query a `conversations`, `messages`, `contacts`, `channels`, `users`, `zoho_connections` filtra por `tenant_id`. Sin excepciones.
+- Services reciben `tenant_id` como parámetro, o objeto ya resuelto (`Channel`, `ZohoConnection`)
+- Nunca hardcodear IDs de tenant, channel, user o contact
+- Webhook entrante identifica tenant+channel por `phone_number_id` de Meta
+- `tenant_id` denormalizado en `conversations` y `messages` — service responsable de consistencia
 
 ---
 
-## Principios de schema
+## Schema
 
-- Enums como tipos nativos de PostgreSQL (no strings libres con CHECK) — SQLAlchemy + Alembic los soportan bien
-- Timestamps con timezone (`TIMESTAMPTZ` / `DateTime(timezone=True)`) — sin excepción
-- Partial unique indexes donde aplique (ej: `UNIQUE (tenant_id, zoho_user_id) WHERE zoho_user_id IS NOT NULL`)
-- FKs con `ON DELETE RESTRICT` por default — borrados se manejan con soft delete (cambio de status), no con DELETE físico
-- Tokens sensibles en columnas `Text`, no `String` con límite arbitrario
-- UUID como PK en todas las tablas nuevas
+- Enums como tipos nativos de PostgreSQL, no strings con CHECK
+- Enums Python heredan de `(str, Enum)`, miembros UPPERCASE, valores lowercase. Usar `values_callable=lambda obj: [e.value for e in obj]` en la columna SQLAlchemy
+- Timestamps con timezone siempre: `DateTime(timezone=True)` / `TIMESTAMPTZ`
+- `datetime.now(timezone.utc)` en Python. Nunca `datetime.utcnow()` (deprecated)
+- FKs con `ON DELETE RESTRICT` por default. Borrados lógicos via status, no físicos
+- Todas las FKs y unique constraints llevan `name="..."` explícito
+- Partial unique indexes donde aplique
+- Tokens sensibles en `Text`, no `String`
+- UUID como PK en tablas nuevas
 
 ---
 
 ## Patrones obligatorios
 
-- Nunca llamar `.json()` sin verificar que el response tiene contenido (puede ser 204 o body vacío)
-- Siempre hacer `db.rollback()` en el `except` antes de retornar `None`
-- Usar `logger` para errores en servicios, no `print`
-- `print` solo para debug temporal — eliminar antes de commitear
-- Toda función que modifique BD debe estar en un service, no en un router
+- Nunca `.json()` sin verificar que el response tiene contenido (puede ser 204 o body vacío)
+- `db.rollback()` en except antes de retornar None
+- `logger` para errores en services, nunca `print`
+- `print` solo debug temporal, eliminar antes de commit
+- Toda función que modifique BD vive en service, no en router
 
 ---
 
-## Migraciones — Alembic
+## Alembic
 
-- Nunca hacer DROP TABLE para agregar columnas — eso es destructivo
-- `DELETE FROM` sí es aceptable cuando los datos son descartables y está explícito en el diseño
-- Flujo obligatorio ante cualquier cambio en `models.py`:
-  1. `alembic revision --autogenerate -m "descripcion"`
-  2. Revisar el archivo generado en `alembic/versions/` antes de correrlo
-  3. Probar en local: `alembic upgrade head` → `alembic downgrade -1` → `alembic upgrade head`
-  4. Solo entonces deploy a Railway (que corre `alembic upgrade head` automáticamente en el Procfile)
+- Nunca DROP TABLE para agregar columnas
+- `DELETE FROM` solo si datos son descartables y está explícito en el diseño
+- Flujo: `alembic revision --autogenerate` → revisar el archivo → probar upgrade/downgrade/upgrade local → deploy
+- Alembic autogenerate tiene bugs conocidos: no emite ENUM DROP en downgrade, no emite `ORDER BY DESC` en índices, no siempre respeta orden de FKs entre tablas nuevas. Revisar siempre.
+- Cambio de columna String a Enum: requiere `postgresql_using="col::enum_type"`
+- ADD COLUMN NOT NULL sobre tabla con datos: DELETE primero (si descartables) o migración en 3 pasos (add nullable → backfill → alter not null)
 
 ---
 
 ## Zoho API
 
-- `find_contact_by_phone` retorna `None` si status 204 o body vacío
+- `find_contact_by_phone` retorna None si status 204 o body vacío
 - Nunca asumir que Zoho devuelve JSON — verificar contenido antes de parsear
-- Desde Fase 4: las credenciales de Zoho viven por tenant en la tabla `zoho_connections`, no en `.env` global
-- El access_token se cachea en BD con `token_expires_at`. Solo se refresca si venció o está por vencer (<5 min). El refresh actualiza ambos campos en una transacción.
+- Credenciales viven por tenant en `zoho_connections`, no en `.env` global
+- `access_token` se cachea en BD con `token_expires_at`. Refresh solo si venció o falta <5 min
+- Refresh actualiza `access_token` + `token_expires_at` en la misma transacción, commit inmediato
+- Race condition aceptada: dos requests concurrentes pueden refrescar, ambos tokens funcionan
+- URLs dinámicas por región: `https://www.zohoapis.{region}/crm/v2` y `https://accounts.zoho.{region}/oauth/v2/token`
+- Services de Zoho reciben `ZohoConnection` como parámetro, no `tenant_id`
 
 ---
 
-## Decisiones de diseño tomadas
+## Webhook entrante — manejo de errores
 
-**Modelo de datos (Fase 4):**
-
-- `contacts` es tabla propia, separada de `conversations` — un contacto puede tener múltiples conversaciones (por canal) dentro del mismo tenant
-- `conversations` tiene FK a `contacts`, no guarda datos del contacto directamente
-- `UNIQUE (channel_id, contact_id)` en conversations — un contacto tiene máximo una conversación por canal
-- `tenant_id` denormalizado en `conversations` y `messages` para evitar JOINs frecuentes
-- `body` en `Message` es nullable — los mensajes pueden ser imágenes o audios sin texto
-- `users.zoho_user_id` es nullable — SiuChat puede evolucionar a mini-CRM sin Zoho obligatorio
-- Roles fijos en enum: `admin`, `supervisor`, `agent` — el primer user de un tenant es siempre `admin`
-- Sin `created_by` en `tenants` para evitar dependencia circular con users (se consulta via query a users)
-- `channels.phone_number_id` y `zoho_connections.org_id` son UNIQUE global — no puede haber dos tenants registrando el mismo recurso de Meta/Zoho
-- `zoho_connections.tenant_id` es UNIQUE — relación 1:1 entre tenant y cuenta Zoho
-- `region` de Zoho se guarda como código (`com`, `eu`, `in`, `com.au`, `jp`), no URL completa
-
-**Operación:**
-
-- Tokens (Meta + Zoho) en texto plano hasta Fase 5 — en Fase 5 se encriptan con Fernet a nivel aplicación
-- Desarrollo local-first con Docker + ngrok; producción solo para deploys validados
-- Frontend actual (vanilla JS en `app/static/`) se mantiene en Fase 4 con adaptaciones mínimas; migración a SPA se planifica para Fase 5
+- `phone_number_id` sin canal activo → log warning, retornar sin procesar. Router responde 200 OK a Meta (nunca retornar error, Meta reintenta agresivo)
+- Sync Zoho falla (network, 401, timeout) → guardar mensaje con `contact.zoho_contact_id = None`. No perder mensajes por culpa de Zoho
+- Cada mensaje es transacción independiente
+- Idempotencia: verificar `whatsapp_message_id` duplicado antes de insertar (Meta reenvía si no respondemos 200 rápido)
 
 ---
 
 ## Flujo de trabajo
 
-1. La arquitectura y decisiones se definen en el chat antes de implementar en Claude Code
-2. Cada prompt complejo a Claude Code debe incluir "siguiendo las reglas del CLAUDE.md"
-3. Si Claude Code genera algo que contradice este archivo, corregirlo y actualizar este archivo
-4. El output de Claude Code se revisa en el chat antes de aceptar/commitear
-5. Sin apuros — cada feature se diseña en detalle antes de implementar
+1. Decisiones de diseño en Claude.ai, ejecución en Claude Code
+2. Prompts a Claude Code referencian "siguiendo CLAUDE.md" en lugar de repetir reglas
+3. Si Claude Code detecta que una regla contradice al código actual, o encuentra un caso no cubierto: parar y pedir clarificación. No improvisar. CLAUDE.md es fuente de verdad — si hay gap, se actualiza el archivo
+4. Al terminar una tarea, resumen de 2-3 oraciones: qué cambió y resultado. Sin desglosar archivo por archivo salvo pedido explícito
+5. Output de Claude Code se revisa antes de aceptar/commitear
+6. Sin apuros — cada feature se diseña antes de implementar
+
+---
+
+## Trabajando con Claude Code
+
+**Plan Mode obligatorio** para tareas que tocan más de un archivo. Activar con `Shift + Tab`. Proponer plan escrito antes de editar.
+
+**Ejecución directa permitida** solo para: fixes chicos (1 archivo, <50 líneas), renombrar variables, agregar logs/docstrings, ejecutar diseños ya validados en Claude.ai.
+
+**Revisión de diffs — qué rechazar automáticamente:**
+
+- Queries sin filtro de `tenant_id`
+- Timestamps sin timezone o `datetime.utcnow()`
+- `except Exception: pass` que silencia errores
+- Nombres autogenerados de constraints/FKs
+- `.json()` sin verificar contenido
+- Hardcoding de IDs (tenant, channel)
+- Diff >150 líneas en un archivo — pedir partir en cambios más chicos
+
+**Cuándo volver a Claude.ai:**
+
+- Claude Code pregunta entre alternativas que afectan arquitectura
+- Error cuya causa sospechás que es problema de diseño más profundo
+- Acumulando deuda técnica por apuro
+
+**Comandos útiles:** `/clear` limpia contexto, `/compact` resume sesión, "think hard" / "ultrathink" en prompt aumenta thinking budget.
+
+---
+
+## Retomar después de pausa
+
+1. Leer `HANDOFF.md` primero
+2. `git log --oneline -20` para últimos commits
+3. Verificar entorno: `docker ps`, venv activado, `alembic current`
+4. Abrir Claude Code en la raíz del proyecto (lee CLAUDE.md automático)
+5. Prompt del próximo paso está en `docs/`
+6. Si volvés a Claude.ai: subir versión actual de CLAUDE.md y HANDOFF.md al project knowledge primero

@@ -1,0 +1,44 @@
+# .claudeignore — archivos que Claude Code NO debe leer
+#
+# Claude Code respeta .gitignore por default, pero este archivo permite excluir
+# cosas adicionales que están en el repo pero no son útiles para el contexto.
+#
+# Menos archivos en contexto = respuestas más rápidas y más precisas.
+
+# Entorno virtual (si por alguna razón llega a estar en el repo)
+venv/
+env/
+.venv/
+
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs y outputs temporales
+*.log
+logs/
+tmp/
+
+# Migraciones viejas ya aplicadas — solo contexto si Claude Code necesita ver el historial.
+# Si querés que Claude Code las lea (por ejemplo para debuggear un problema de Alembic), comentar esta línea:
+# alembic/versions/
+
+# Data dumps
+*.sql
+*.dump
+
+# Archivos sensibles (doble check, aunque ya están en .gitignore)
+.env
+.env.local
+.env.production
