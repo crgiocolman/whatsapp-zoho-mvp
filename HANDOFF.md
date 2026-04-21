@@ -193,3 +193,10 @@ Objetivo: permitir que un segundo tenant conecte su número de WhatsApp Business
 4. Levantar backend: `uvicorn app.main:app --reload`
 5. Abrir `http://localhost:8000/panel` — debería cargar con conversaciones previas
 6. Para avanzar con Bloque B: volver a Claude.ai (este chat o uno nuevo con project knowledge actualizado) y diseñar los pasos antes de tocar Claude Code
+
+### Producción (Railway):
+
+Tenant ID: 2b1409fa-f46c-4f6c-befc-ed449e30072c
+Admin User ID: e2e3608d-e6a6-4be3-b3ff-c214e8a08ed9
+Channel ID: b8d56120-0cca-467e-9a5e-f66989aa2806
+Zoho Connection ID: 87467615-d803-4c66-81d5-d101970c28f4
