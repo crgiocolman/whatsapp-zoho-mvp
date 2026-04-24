@@ -44,6 +44,14 @@
 
 ## PostgreSQL (dentro de Docker)
 
+| Comando                                                                                                                             | Descripción                          |
+| ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `docker run -d --name pgadmin -e PGADMIN_DEFAULT_EMAIL=admin@admin.com -e PGADMIN_DEFAULT_PASSWORD=admin -p 5050:80 dpage/pgadmin4` | Levanta el pgadmin en localhost:5050 |
+| `docker exec -it whatsapp-zoho-db psql -U admin -d whatsapp_zoho -c "SELECT * FROM conversations;"`                                 | Ver registros de conversaciones      |
+| `docker exec -it whatsapp-zoho-db psql -U admin -d whatsapp_zoho -c "SELECT * FROM messages;"`                                      | Ver registros de mensajes            |
+
+## PgAdmin (dentro de Docker)
+
 | Comando                                                                                             | Descripción                     |
 | --------------------------------------------------------------------------------------------------- | ------------------------------- |
 | `docker exec -it whatsapp-zoho-db psql -U admin -d whatsapp_zoho -c "\dt"`                          | Lista las tablas de la DB       |
@@ -67,3 +75,7 @@
 | `alembic current`                                  | Muestra la migración actualmente aplicada                      |
 | `alembic downgrade -1`                             | Revierte la última migración                                   |
 | `alembic history`                                  | Lista todas las migraciones del proyecto                       |
+
+## PgAdmin
+
+| docker run -d --name pgadmin -e PGADMIN_DEFAULT_EMAIL=admin@admin.com -e PGADMIN_DEFAULT_PASSWORD=admin -p 5050:80 dpage/pgadmin4
