@@ -42,15 +42,13 @@
 | `docker start whatsapp-zoho-db`                                                                                                                    | Levanta el contenedor si ya existe (después del primer run) |
 | `docker stop whatsapp-zoho-db`                                                                                                                     | Detiene el contenedor                                       |
 
-## PostgreSQL (dentro de Docker)
+## PgAdmin (Levantar dentro de Docker)
 
 | Comando                                                                                                                             | Descripción                          |
 | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
 | `docker run -d --name pgadmin -e PGADMIN_DEFAULT_EMAIL=admin@admin.com -e PGADMIN_DEFAULT_PASSWORD=admin -p 5050:80 dpage/pgadmin4` | Levanta el pgadmin en localhost:5050 |
-| `docker exec -it whatsapp-zoho-db psql -U admin -d whatsapp_zoho -c "SELECT * FROM conversations;"`                                 | Ver registros de conversaciones      |
-| `docker exec -it whatsapp-zoho-db psql -U admin -d whatsapp_zoho -c "SELECT * FROM messages;"`                                      | Ver registros de mensajes            |
 
-## PgAdmin (dentro de Docker)
+## PostgreSQL (dentro de Docker)
 
 | Comando                                                                                             | Descripción                     |
 | --------------------------------------------------------------------------------------------------- | ------------------------------- |
